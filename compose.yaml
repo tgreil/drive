@@ -66,7 +66,7 @@ services:
       - env.d/development/common
       - env.d/development/postgresql
     ports:
-      - "9071:8000"
+      - "8071:8000"
     volumes:
       - ./src/backend:/app
       - ./data/static:/data/static
@@ -107,13 +107,12 @@ services:
   nginx:
     image: nginx:1.25
     ports:
-      - "9083:8083"
+      - "8083:8083"
     volumes:
       - ./docker/files/etc/nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - keycloak
       - app-dev
-      - y-provider
 
   # frontend-dev:
   #   user: "${DOCKER_USER:-1000}"
@@ -122,8 +121,8 @@ services:
   #     dockerfile: ./src/frontend/Dockerfile
   #     target: frontend-production
   #     args:
-  #       API_ORIGIN: "http://localhost:9071"
-  #       MEDIA_URL: "http://localhost:9083"
+  #       API_ORIGIN: "http://localhost:8071"
+  #       MEDIA_URL: "http://localhost:8083"
   #       SW_DEACTIVATED: "true"
   #   image: drive:frontend-development
   #   ports:
@@ -182,7 +181,7 @@ services:
       KC_DB_SCHEMA: public
       PROXY_ADDRESS_FORWARDING: 'true'
     ports:
-      - "9080:8080"
+      - "8080:8080"
     depends_on:
       kc_postgresql:
         condition: service_healthy

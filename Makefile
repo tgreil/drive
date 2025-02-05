@@ -47,6 +47,7 @@ COMPOSE_RUN_CROWDIN = $(COMPOSE_RUN) crowdin crowdin
 
 # -- Backend
 MANAGE              = $(COMPOSE_RUN_APP) python manage.py
+MAIL_YARN           = $(COMPOSE_RUN) -w /app/src/mail node yarn
 
 
 # ==============================================================================
@@ -77,7 +78,9 @@ bootstrap: \
 	create-env-files \
 	build \
 	migrate \
-	back-i18n-compile 
+	back-i18n-compile \
+	mails-install \
+	mails-build
 .PHONY: bootstrap
 
 # -- Docker/compose
@@ -257,6 +260,24 @@ i18n-generate-and-upload: \
   i18n-generate \
   crowdin-upload
 .PHONY: i18n-generate-and-upload
+
+# -- Mail generator
+
+mails-build: ## Convert mjml files to html and text
+	@$(MAIL_YARN) build
+.PHONY: mails-build
+
+mails-build-html-to-plain-text: ## Convert html files to text
+	@$(MAIL_YARN) build-html-to-plain-text
+.PHONY: mails-build-html-to-plain-text
+
+mails-build-mjml-to-html:	## Convert mjml files to html and text
+	@$(MAIL_YARN) build-mjml-to-html
+.PHONY: mails-build-mjml-to-html
+
+mails-install: ## install the mail generator
+	@$(MAIL_YARN) install
+.PHONY: mails-install
 
 
 # -- Misc
