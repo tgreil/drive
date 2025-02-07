@@ -94,10 +94,10 @@ class ItemFactory(factory.django.DjangoModelFactory):
             kwargs["ancestors_deleted_at"] = (
                 kwargs.get("ancestors_deleted_at") or parent.ancestors_deleted_at
             )
-            return parent.add_child(instance=model_class(**kwargs))
+            return parent.add_child(**kwargs)
 
         # Add as a root node
-        return model_class.add_root(instance=model_class(**kwargs))
+        return model_class.add_root(**kwargs)
 
     @factory.lazy_attribute
     def ancestors_deleted_at(self):

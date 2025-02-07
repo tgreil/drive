@@ -581,3 +581,59 @@ def test_models_items_creating_non_file_with_filename_should_fail(item_type):
     assert exc_info.value.message_dict == {
         "__all__": ["Constraint “check_filename_set_for_files” is violated."]
     }
+
+
+def test_models_items_title_must_be_set():
+    """The title field must be set."""
+    with pytest.raises(ValidationError) as exc_info:
+        factories.ItemFactory(title=None)
+
+    assert exc_info.value.message_dict == {"title": ["This field cannot be null."]}
+
+    with pytest.raises(ValidationError) as exc_info:
+        factories.ItemFactory(title="")
+
+    assert exc_info.value.message_dict == {"title": ["This field cannot be blank."]}
+
+
+def test_models_items_unique_title_in_current_path():
+    """Check title unicity in the current path."""
+    parent = factories.ItemFactory(type=models.ItemTypeChoices.FOLDER, title="folder")
+    parent2 = factories.ItemFactory(
+        type=models.ItemTypeChoices.FOLDER, title="an other one"
+    )
+
+    # An other root can have the same title
+    factories.ItemFactory(type=models.ItemTypeChoices.FOLDER, title="folder")
+
+    # Create a child item with the same title should work
+    factories.ItemFactory(
+        parent=parent, title="folder", type=models.ItemTypeChoices.FOLDER
+    )
+    # Create a child item with a title already existing in an other tree should work
+    factories.ItemFactory(
+        parent=parent, title="an other one", type=models.ItemTypeChoices.FOLDER
+    )
+    factories.ItemFactory(
+        parent=parent2, title="folder", type=models.ItemTypeChoices.FOLDER
+    )
+
+    factories.ItemFactory(
+        parent=parent,
+        title="file.txt",
+        type=models.ItemTypeChoices.FILE,
+        filename="file.txt",
+    )
+
+    with pytest.raises(ValidationError):
+        factories.ItemFactory(
+            parent=parent, title="folder", type=models.ItemTypeChoices.FOLDER
+        )
+
+    with pytest.raises(ValidationError):
+        factories.ItemFactory(
+            parent=parent,
+            title="file.txt",
+            type=models.ItemTypeChoices.FILE,
+            filename="file.txt",
+        )

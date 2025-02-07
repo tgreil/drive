@@ -273,3 +273,32 @@ def test_api_items_children_create_force_id_existing():
     assert response.json() == {
         "id": ["An item with this ID already exists. You cannot override it."]
     }
+
+
+def test_api_items_children_create_title_already_existing_at_the_same_level():
+    """
+    It should not be possible to create a nested item with a title that already exists
+    at the same level.
+    """
+    user = factories.UserFactory()
+    client = APIClient()
+    client.force_login(user)
+
+    access = factories.UserItemAccessFactory(
+        user=user, role="editor", item__type=ItemTypeChoices.FOLDER
+    )
+    factories.ItemFactory(
+        parent=access.item, title="my item", type=ItemTypeChoices.FOLDER
+    )
+
+    response = client.post(
+        f"/api/v1.0/items/{access.item.id!s}/children/",
+        {
+            "title": "my item",
+            "type": ItemTypeChoices.FOLDER,
+        },
+        format="json",
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"title": ["title already exists in this folder."]}

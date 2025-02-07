@@ -14,6 +14,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.sites.models import Site
 from django.core import mail, validators
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import models, transaction
 from django.db.models.functions import Left, Length
@@ -23,7 +24,6 @@ from django.utils.functional import cached_property, lazy
 from django.utils.translation import get_language, override
 from django.utils.translation import gettext_lazy as _
 
-from rest_framework.exceptions import ValidationError
 from timezone_field import TimeZoneField
 from treebeard.mp_tree import MP_Node
 
@@ -711,6 +711,12 @@ class Item(MP_Node, BaseModel):
         """Check if the item can have children before adding one."""
         if self.type != ItemTypeChoices.FOLDER:
             raise ValidationError({"type": _("Only folders can have children.")})
+
+        if (title := kwargs.get("title")) and Item.objects.filter(
+            models.Q(path__startswith=self.path, title=title),
+            ~models.Q(id=self.id),
+        ).exists():
+            raise ValidationError({"title": _("title already exists in this folder.")})
 
         return super().add_child(**kwargs)
 
