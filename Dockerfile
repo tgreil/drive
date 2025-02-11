@@ -21,7 +21,15 @@ COPY ./src/backend /builder
 RUN mkdir /install && \
   pip install --prefix=/install .
 
+# ---- mails ----
+FROM node:20 AS mail-builder
 
+COPY ./src/mail /mail/app
+
+WORKDIR /mail/app
+
+RUN yarn install --frozen-lockfile && \
+    yarn build
 
 # ---- static link collector ----
 FROM base AS link-collector
@@ -135,6 +143,9 @@ USER ${DOCKER_USER}
 
 # Copy statics
 COPY --from=link-collector ${DRIVE_STATIC_ROOT} ${DRIVE_STATIC_ROOT}
+
+# Copy mails
+COPY --from=mail-builder /mail/backend/core/templates/mail /app/core/templates/mail
 
 
 # The default command runs gunicorn WSGI server in drive's main module
