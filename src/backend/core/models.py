@@ -755,7 +755,7 @@ class Item(TreeModel, BaseModel):
 
         self.ancestors_deleted_at = self.deleted_at = timezone.now()
 
-        self.save()
+        self.save(update_fields=["deleted_at", "ancestors_deleted_at"])
 
         if self.depth > 1:
             parent = self.parent()
@@ -803,7 +803,7 @@ class Item(TreeModel, BaseModel):
             .first()
         )
         self.ancestors_deleted_at = ancestors_deleted_at
-        self.save()
+        self.save(update_fields=["deleted_at", "ancestors_deleted_at"])
 
         self.descendants().exclude(
             models.Q(deleted_at__isnull=False)
