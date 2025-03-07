@@ -576,6 +576,7 @@ class ItemViewSet(
     @drf.decorators.action(
         detail=False,
         methods=["get"],
+        permission_classes=[permissions.IsAuthenticated],
     )
     def favorite_list(self, request, *args, **kwargs):
         """Get list of favorite items for the current user."""
