@@ -65,6 +65,7 @@ def test_api_items_retrieve_anonymous_public_standalone():
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -126,6 +127,7 @@ def test_api_items_retrieve_anonymous_public_parent():
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -217,6 +219,7 @@ def test_api_items_retrieve_authenticated_unrelated_public_or_authenticated(reac
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
     assert models.LinkTrace.objects.filter(item=item, user=user).exists() is True
 
@@ -283,6 +286,7 @@ def test_api_items_retrieve_authenticated_public_or_authenticated_parent(reach):
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -396,6 +400,7 @@ def test_api_items_retrieve_authenticated_related_direct():
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -464,6 +469,7 @@ def test_api_items_retrieve_authenticated_related_parent():
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -619,6 +625,7 @@ def test_api_items_retrieve_authenticated_related_team_members(
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -682,6 +689,7 @@ def test_api_items_retrieve_authenticated_related_team_administrators(
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -745,6 +753,7 @@ def test_api_items_retrieve_authenticated_related_team_owners(
         "url": None,
         "mimetype": None,
         "main_workspace": False,
+        "filename": item.filename,
     }
 
 
@@ -1032,4 +1041,5 @@ def test_api_items_retrieve_file_uploaded():
         "url": f"http://localhost:8083/media/item/{item.id!s}/logo.png",
         "mimetype": "image/png",
         "main_workspace": False,
+        "filename": item.filename,
     }

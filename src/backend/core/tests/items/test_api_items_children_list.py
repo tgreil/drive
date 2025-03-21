@@ -53,6 +53,7 @@ def test_api_items_children_list_anonymous_public_standalone():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
             {
                 "abilities": child2.get_abilities(AnonymousUser()),
@@ -77,6 +78,7 @@ def test_api_items_children_list_anonymous_public_standalone():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }
@@ -138,6 +140,7 @@ def test_api_items_children_list_anonymous_public_parent():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
             {
                 "abilities": child2.get_abilities(AnonymousUser()),
@@ -160,6 +163,7 @@ def test_api_items_children_list_anonymous_public_parent():
                 "url": f"http://localhost:8083/media/item/{child2.id!s}/logo.png",
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }
@@ -229,6 +233,7 @@ def test_api_items_children_list_authenticated_unrelated_public_or_authenticated
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
             {
                 "abilities": child2.get_abilities(user),
@@ -253,6 +258,7 @@ def test_api_items_children_list_authenticated_unrelated_public_or_authenticated
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }
@@ -314,6 +320,7 @@ def test_api_items_children_list_authenticated_public_or_authenticated_parent(
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
             {
                 "abilities": child2.get_abilities(user),
@@ -338,6 +345,7 @@ def test_api_items_children_list_authenticated_public_or_authenticated_parent(
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }
@@ -417,6 +425,7 @@ def test_api_items_children_list_authenticated_related_direct():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
             {
                 "abilities": child2.get_abilities(user),
@@ -441,6 +450,7 @@ def test_api_items_children_list_authenticated_related_direct():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }
@@ -503,6 +513,7 @@ def test_api_items_children_list_authenticated_related_parent():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
             {
                 "abilities": child2.get_abilities(user),
@@ -527,6 +538,7 @@ def test_api_items_children_list_authenticated_related_parent():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }
@@ -638,6 +650,7 @@ def test_api_items_children_list_authenticated_related_team_members(
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
             {
                 "abilities": child2.get_abilities(user),
@@ -662,6 +675,7 @@ def test_api_items_children_list_authenticated_related_team_members(
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }
@@ -720,6 +734,7 @@ def test_api_items_children_list_filter_type():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child1.filename,
             },
         ],
     }
@@ -757,6 +772,7 @@ def test_api_items_children_list_filter_type():
                 "url": None,
                 "mimetype": None,
                 "main_workspace": False,
+                "filename": child2.filename,
             },
         ],
     }

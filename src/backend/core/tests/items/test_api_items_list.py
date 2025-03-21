@@ -96,6 +96,7 @@ def test_api_items_list_format():
             "url": f"http://localhost:8083/media/item/{item2.id!s}/logo.png",
             "mimetype": None,
             "main_workspace": False,
+            "filename": item2.filename,
         },
         {
             "id": str(item.id),
@@ -118,6 +119,7 @@ def test_api_items_list_format():
             "url": None,
             "mimetype": None,
             "main_workspace": False,
+            "filename": item.filename,
         },
         {
             "id": str(item3.id),
@@ -138,7 +140,9 @@ def test_api_items_list_format():
             "type": models.ItemTypeChoices.FOLDER,
             "upload_state": None,
             "url": None,
+            "mimetype": None,
             "main_workspace": True,
+            "filename": item3.filename,
         },
     ]
 
