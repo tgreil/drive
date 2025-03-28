@@ -174,10 +174,10 @@
   dependencies:
     tslib "2"
 
-"@gouvfr-lasuite/ui-kit@0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@gouvfr-lasuite/ui-kit/-/ui-kit-0.1.5.tgz#5014239dd1e46806573014c2e011d7abdd0bebe8"
-  integrity sha512-hVg/jwO9gO0VePyyJ6r9pcTqKUhttxivHZGpl2oUXzT2VTQ06tAXibkACauDZR/ms1tdI1pRcFvvTXQw4m5kVQ==
+"@gouvfr-lasuite/ui-kit@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@gouvfr-lasuite/ui-kit/-/ui-kit-0.1.7.tgz#2d8871650459e1da6dce5135e2a68bd5726e2eb7"
+  integrity sha512-xs0MOdm9EvYVWSGVlyMdMeW/X+VfqJKLYqnevnV+anlM/eHs0fJizr0rVqRDIwnGX4smMrBsufWXeXm6OnpPPw==
   dependencies:
     "@dnd-kit/core" "6.3.1"
     "@dnd-kit/modifiers" "9.0.0"
