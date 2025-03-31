@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { NavigationEventType, useExplorer } from "./ExplorerContext";
 import { Item } from "@/features/drivers/types";
 import { ExplorerCreateFolderModal } from "./modals/ExplorerCreateFolderModal";
-import { useState } from "react";
 import { DropdownMenu, useDropdownMenu } from "@gouvfr-lasuite/ui-kit";
 import uploadFileSvg from "@/assets/icons/upload_file.svg";
 import uploadFolderSvg from "@/assets/icons/upload_folder.svg";

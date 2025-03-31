@@ -1,4 +1,4 @@
-import { SetStateAction, useContext, useState } from "react";
+import { SetStateAction, useContext, useEffect, useState } from "react";
 import { Dispatch } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Item } from "@/features/drivers/types";
@@ -19,6 +19,10 @@ export interface ExplorerContextType {
   tree: Item | undefined;
   onNavigate: (event: NavigationEvent) => void;
   dropZone: ReturnType<typeof useDropzone>;
+  rightPanelForcedItem?: Item;
+  setRightPanelForcedItem: (item: Item | undefined) => void;
+  rightPanelOpen: boolean;
+  setRightPanelOpen: (open: boolean) => void;
 }
 
 export const ExplorerContext = createContext<ExplorerContextType | undefined>(
@@ -56,6 +60,8 @@ export const ExplorerProvider = ({
   const [selectedItemIds, setSelectedItemIds] = useState<
     Record<string, boolean>
   >({});
+  const [rightPanelForcedItem, setRightPanelForcedItem] = useState<Item>();
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ["items", itemId],
@@ -78,6 +84,16 @@ export const ExplorerProvider = ({
       : [];
   };
 
+  useEffect(() => {
+    // If the right panel item is the same as the current item, we need to clear the selected items because the right panel
+    // will be open and we don't want to show the selected items in the right panel
+    if (!rightPanelForcedItem || rightPanelForcedItem.id === itemId) {
+      setSelectedItemIds({});
+    } else {
+      setSelectedItemIds({ [rightPanelForcedItem.id]: true });
+    }
+  }, [rightPanelForcedItem]);
+
   const { dropZone } = useUploadZone({ item: item! });
 
   return (
@@ -93,6 +109,10 @@ export const ExplorerProvider = ({
         children: itemChildren,
         onNavigate,
         dropZone,
+        rightPanelForcedItem,
+        setRightPanelForcedItem,
+        rightPanelOpen,
+        setRightPanelOpen,
       }}
     >
       <input

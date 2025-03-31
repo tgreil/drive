@@ -11,7 +11,36 @@
           "unexpected": "An unexpected error occurred."
         }
       },
+      "mime": {
+        "calc": "Spreadsheet",
+        "doc": "Document",
+        "image": "Image",
+        "other": "Other",
+        "pdf": "PDF",
+        "powerpoint": "Presentation",
+        "audio": "Audio",
+        "video": "Video",
+        "archive": "Archive"
+      },
       "explorer": {
+        "rightPanel": {
+          "multipleSelection": {
+            "text": "Multiple files selected",
+            "alt": "Multiple files selected image"
+          },
+          "empty": {
+            "text": "No files selected",
+            "alt": "No files selected image"
+          },
+          "sharing": "Sharing",
+          "share": "Share",
+          "format": "Format",
+          "updated_at": "Updated at",
+          "created_at": "Created at",
+          "size": "Size",
+          "created_by": "Created by",
+          "description": "Description"
+        },
         "grid": {
           "name": "Name",
           "last_update": "Last Update",
@@ -97,7 +126,34 @@
           "unexpected": "Une erreur inattendue est survenue."
         }
       },
+      "mime": {
+        "calc": "Tableur",
+        "doc": "Document",
+        "image": "Image",
+        "other": "Autre",
+        "pdf": "PDF",
+        "powerpoint": "Présentation",
+        "audio": "Audio",
+        "video": "Vidéo",
+        "archive": "Archive"
+      },
       "explorer": {
+        "rightPanel": {
+          "multipleSelection": {
+            "text": "Plusieurs fichiers sélectionnés"
+          },
+          "empty": {
+            "text": "Aucun fichier sélectionné"
+          },
+          "sharing": "Partage",
+          "share": "Partager",
+          "format": "Format",
+          "updated_at": "Modification",
+          "created_at": "Création",
+          "size": "Poids",
+          "created_by": "Créé par",
+            "description": "Description"
+        },
         "grid": {
           "name": "Nom",
           "last_update": "Dernière modification",

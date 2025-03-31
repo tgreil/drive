@@ -8,10 +8,12 @@ import { useEffect } from "react";
 
 export const ExplorerSelectionBar = () => {
   const { t } = useTranslation();
-  const { selectedItems, setSelectedItemIds } = useExplorer();
+  const { selectedItems, setSelectedItemIds, setRightPanelForcedItem } =
+    useExplorer();
 
   const handleClearSelection = () => {
     setSelectedItemIds({});
+    setRightPanelForcedItem(undefined);
   };
 
   const deleteItems = useMutationDeleteItems();

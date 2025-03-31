@@ -43,8 +43,14 @@ export const ExplorerGrid = () => {
     []
   );
 
-  const { setSelectedItemIds, selectedItemIds, onNavigate, children, item } =
-    useExplorer();
+  const {
+    setSelectedItemIds,
+    selectedItemIds,
+    onNavigate,
+    children,
+    setRightPanelForcedItem,
+    setRightPanelOpen,
+  } = useExplorer();
 
   const [renameItem, setRenameItem] = useState<Item>();
   const renameModal = useModal();
@@ -53,6 +59,10 @@ export const ExplorerGrid = () => {
     return (
       <ItemActions
         item={params.row.original}
+        onInfo={() => {
+          setRightPanelForcedItem(params.row.original);
+          setRightPanelOpen(true);
+        }}
         onRename={() => {
           setRenameItem(params.row.original);
           renameModal.open();
@@ -194,6 +204,7 @@ export const ExplorerGrid = () => {
                           [row.original.id]: true,
                         });
                         lastSelectedRowRef.current = row.id;
+                        setRightPanelForcedItem(row.original);
                       }
                     }
 
@@ -268,9 +279,11 @@ export const ExplorerGrid = () => {
 const ItemActions = ({
   item,
   onRename,
+  onInfo,
 }: {
   item: Item;
   onRename: () => void;
+  onInfo: () => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
@@ -294,6 +307,7 @@ const ItemActions = ({
             icon: <span className="material-icons">info</span>,
             label: t("explorer.grid.actions.info"),
             value: "info",
+            callback: onInfo,
           },
           {
             icon: <span className="material-icons">group</span>,

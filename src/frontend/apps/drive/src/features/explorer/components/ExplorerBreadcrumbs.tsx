@@ -6,7 +6,8 @@ import { getAncestors } from "../utils/tree";
 import { useMemo } from "react";
 
 export const ExplorerBreadcrumbs = () => {
-  const { tree, item, onNavigate } = useExplorer();
+  const { tree, item, onNavigate, setRightPanelOpen, setRightPanelForcedItem } =
+    useExplorer();
 
   const getBreadcrumbsItems = () => {
     if (!tree || !item) {
@@ -37,6 +38,10 @@ export const ExplorerBreadcrumbs = () => {
 
   const breadcrumbsItems = useMemo(() => getBreadcrumbsItems(), [tree, item]);
 
+  if (!item) {
+    return null;
+  }
+
   return (
     <div className="explorer__content__breadcrumbs">
       <Breadcrumbs items={breadcrumbsItems} />
@@ -44,7 +49,11 @@ export const ExplorerBreadcrumbs = () => {
         <Button
           icon={<span className="material-icons">info</span>}
           color="primary-text"
-        ></Button>
+          onClick={() => {
+            setRightPanelOpen(true);
+            setRightPanelForcedItem(item);
+          }}
+        />
       </div>
     </div>
   );
