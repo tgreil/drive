@@ -127,7 +127,7 @@ def test_api_items_update_anonymous_or_authenticated_unrelated(
     is_authenticated, reach, role, via_parent
 ):
     """
-    Anonymous and authenticated users should be able to update a item to which
+    Anonymous and authenticated users should be able to update an item to which
     they are not related if the link configuration allows it.
     """
     client = APIClient()
@@ -147,18 +147,23 @@ def test_api_items_update_anonymous_or_authenticated_unrelated(
             link_reach="restricted",
             type=models.ItemTypeChoices.FOLDER,
         )
-        item = factories.ItemFactory(parent=parent, link_reach="restricted")
+        item = factories.ItemFactory(
+            parent=parent, link_reach="restricted", type=models.ItemTypeChoices.FOLDER
+        )
     else:
-        item = factories.ItemFactory(link_reach=reach, link_role=role)
+        item = factories.ItemFactory(
+            link_reach=reach, link_role=role, type=models.ItemTypeChoices.FOLDER
+        )
 
     old_item_values = serializers.ItemSerializer(instance=item).data
-    new_item_values = serializers.ItemSerializer(instance=factories.ItemFactory()).data
+    new_item_values = serializers.ItemSerializer(
+        instance=factories.ItemFactory(type=models.ItemTypeChoices.FOLDER)
+    ).data
     response = client.put(
         f"/api/v1.0/items/{item.id!s}/",
         new_item_values,
         format="json",
     )
-
     assert response.status_code == 200
 
     item = models.Item.objects.get(pk=item.pk)
@@ -256,10 +261,14 @@ def test_api_items_update_authenticated_editor_administrator_or_owner(
             link_reach="restricted",
             type=models.ItemTypeChoices.FOLDER,
         )
-        item = factories.ItemFactory(parent=parent, link_reach="restricted")
+        item = factories.ItemFactory(
+            parent=parent, link_reach="restricted", type=models.ItemTypeChoices.FOLDER
+        )
         access_item = grand_parent
     else:
-        item = factories.ItemFactory(link_reach="restricted")
+        item = factories.ItemFactory(
+            link_reach="restricted", type=models.ItemTypeChoices.FOLDER
+        )
         access_item = item
 
     if via == USER:
@@ -270,7 +279,9 @@ def test_api_items_update_authenticated_editor_administrator_or_owner(
 
     old_item_values = serializers.ItemSerializer(instance=item).data
 
-    new_item_values = serializers.ItemSerializer(instance=factories.ItemFactory()).data
+    new_item_values = serializers.ItemSerializer(
+        instance=factories.ItemFactory(type=models.ItemTypeChoices.FOLDER)
+    ).data
     response = client.put(
         f"/api/v1.0/items/{item.id!s}/",
         new_item_values,
