@@ -1,10 +1,18 @@
 import { Item, ItemType } from "./types";
 
+
+export type ItemFilters = {
+  type?: ItemType;
+  
+};
+
 export abstract class Driver {
-  abstract getItems(filters?: { type?: ItemType }): Promise<Item[]>;
+  abstract getItems(filters?: ItemFilters): Promise<Item[]>;
   abstract getItem(id: string): Promise<Item>;
   abstract updateItem(item: Partial<Item>): Promise<Item>;
-  abstract getChildren(id: string): Promise<Item[]>;
+  abstract moveItem(id: string, parentId: string): Promise<void>;
+  abstract moveItems(ids: string[], parentId: string): Promise<void>;
+  abstract getChildren(id: string, filters?: ItemFilters): Promise<Item[]>;
   abstract getTree(id: string): Promise<Item>;
   abstract createFolder(data: { title: string }): Promise<Item>;
   abstract createFile(data: {

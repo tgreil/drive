@@ -1,5 +1,5 @@
 import { fetchAPI } from "@/features/api/fetchApi";
-import { Driver } from "../Driver";
+import { Driver, ItemFilters } from "../Driver";
 import { Item, ItemType } from "../types";
 
 export class StandardDriver extends Driver {
@@ -18,18 +18,22 @@ export class StandardDriver extends Driver {
   }
 
   async updateItem(item: Partial<Item>): Promise<Item> {
-    const response = await fetchAPI(`items/${item.id}/`, {
-      method: "PATCH",
-      body: JSON.stringify(item),
-    });
-    const data = await response.json();
-    return jsonToItem(data);
+      const response = await fetchAPI(`items/${item.id}/`, {
+          method: "PATCH",
+          body: JSON.stringify(item),
+      });
+      const data = await response.json();
+      return jsonToItem(data);
   }
-  async getChildren(id: string): Promise<Item[]> {
+
+  async getChildren(id: string, filters?: ItemFilters): Promise<Item[]> {
+    const params = {
+      page_size: "100000",
+      ordering: "-type,-created_at",
+      ...(filters ? filters : {}),
+    };
     const response = await fetchAPI(`items/${id}/children/`, {
-      params: {
-        page_size: "100000",
-      },
+      params,
     });
     const data = await response.json();
     return jsonToItems(data.results);
@@ -39,6 +43,20 @@ export class StandardDriver extends Driver {
     const response = await fetchAPI(`items/${id}/tree/`);
     const data = await response.json();
     return jsonToItem(data);
+  }
+
+  async moveItem(id: string, parentId: string): Promise<void> {
+    await fetchAPI(`items/${id}/move/`, {
+      method: "POST",
+      body: JSON.stringify({ target_item_id: parentId }),
+    });
+  }
+
+
+  async moveItems(ids: string[], parentId: string): Promise<void> {
+    for (const id of ids) {
+      await this.moveItem(id, parentId);
+    }
   }
 
   async createFolder(data: {
