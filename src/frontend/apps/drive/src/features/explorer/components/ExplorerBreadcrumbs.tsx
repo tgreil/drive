@@ -2,10 +2,12 @@ import { Breadcrumbs } from "@/features/ui/components/breadcrumbs/Breadcrumbs";
 import { Button } from "@openfun/cunningham-react";
 import workspaceLogo from "@/assets/workspace_logo.svg";
 import { NavigationEventType, useExplorer } from "./ExplorerContext";
-import { getAncestors } from "../utils/tree";
 import { useMemo } from "react";
+import { TreeViewNodeTypeEnum, useTreeContext } from "@gouvfr-lasuite/ui-kit";
+import { TreeItem } from "@/features/drivers/types";
 
 export const ExplorerBreadcrumbs = () => {
+    const treeContext = useTreeContext<TreeItem>();
   const { tree, item, onNavigate, setRightPanelOpen, setRightPanelForcedItem } =
     useExplorer();
 
@@ -14,7 +16,13 @@ export const ExplorerBreadcrumbs = () => {
       return [];
     }
 
-    const ancestors = getAncestors(tree, item);
+    const nodes = treeContext?.treeData.nodes ?? [];
+
+    const ancestors: TreeItem[] =
+      nodes.length > 0
+        ? (treeContext?.treeData.getAncestors(item.id) as TreeItem[])
+        : [];
+
     return ancestors.map((ancestor, index) => {
       return {
         content: (
@@ -29,14 +37,20 @@ export const ExplorerBreadcrumbs = () => {
             className="c__breadcrumbs__button"
           >
             {index === 0 && <img src={workspaceLogo.src} alt="Lasuite" />}
-            {ancestor.title}
+            {/**
+             * This is due to the TreeViewDataType<T> type from the ui-kit. Indeed, the type T is only available for the NODE type.
+             * So if we don't test for it, we don't have access to the title property
+             **/}
+            {ancestor.nodeType === TreeViewNodeTypeEnum.NODE && (
+              <span>{ancestor.title}</span>
+            )}
           </button>
         ),
       };
     });
   };
 
-  const breadcrumbsItems = useMemo(() => getBreadcrumbsItems(), [tree, item]);
+  const breadcrumbsItems = useMemo(() => getBreadcrumbsItems(), [item]);
 
   if (!item) {
     return null;

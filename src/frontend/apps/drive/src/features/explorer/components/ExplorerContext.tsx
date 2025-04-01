@@ -1,13 +1,19 @@
 import { SetStateAction, useContext, useEffect, useState } from "react";
 import { Dispatch } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Item } from "@/features/drivers/types";
+import { Item, ItemType, TreeItem } from "@/features/drivers/types";
 import { createContext } from "react";
 import { getDriver } from "@/features/config/Config";
 import { Toaster } from "@/features/ui/components/toaster/Toaster";
 import { useDropzone } from "react-dropzone";
 import { useUploadZone } from "../hooks/useUpload";
 
+import {
+  TreeProvider,
+  TreeViewDataType,
+  TreeViewNodeTypeEnum,
+} from "@gouvfr-lasuite/ui-kit";
+import { ExplorerDndProvider } from "./ExplorerDndProvider";
 export interface ExplorerContextType {
   selectedItemIds: Record<string, boolean>;
   setSelectedItemIds: Dispatch<SetStateAction<Record<string, boolean>>>;
@@ -15,9 +21,13 @@ export interface ExplorerContextType {
   selectedItems: Item[];
   itemId: string;
   item: Item | undefined;
+  firstLevelItems: Item[] | undefined;
   children: Item[] | undefined;
   tree: Item | undefined;
   onNavigate: (event: NavigationEvent) => void;
+  initialId: string | undefined;
+  treeIsInitialized: boolean;
+  setTreeIsInitialized: (isInitialized: boolean) => void;
   dropZone: ReturnType<typeof useDropzone>;
   rightPanelForcedItem?: Item;
   setRightPanelForcedItem: (item: Item | undefined) => void;
@@ -43,7 +53,7 @@ export enum NavigationEventType {
 
 export type NavigationEvent = {
   type: NavigationEventType.ITEM;
-  item: Item;
+  item: Item | TreeItem;
 };
 
 export const ExplorerProvider = ({
@@ -57,11 +67,23 @@ export const ExplorerProvider = ({
   itemId: string;
   onNavigate: (event: NavigationEvent) => void;
 }) => {
+  const driver = getDriver();
+
   const [selectedItemIds, setSelectedItemIds] = useState<
     Record<string, boolean>
   >({});
   const [rightPanelForcedItem, setRightPanelForcedItem] = useState<Item>();
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
+
+  const [initialId, setInitialId] = useState<string | undefined>(itemId);
+  const [treeIsInitialized, setTreeIsInitialized] = useState<boolean>(false);
+
+  useEffect(() => {
+    // if the initialId is not set, we set it to the itemId to initialize the tree
+    if (!initialId) {
+      setInitialId(itemId);
+    }
+  }, [itemId, initialId]);
 
   const { data: item } = useQuery({
     queryKey: ["items", itemId],
@@ -73,9 +95,23 @@ export const ExplorerProvider = ({
     queryFn: () => getDriver().getChildren(itemId),
   });
 
+  const { data: firstLevelItems } = useQuery({
+    queryKey: ["firstLevelItems"],
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    queryFn: () => getDriver().getItems(),
+  });
+
   const { data: tree } = useQuery({
-    queryKey: ["items", itemId, "tree"],
-    queryFn: () => getDriver().getTree(itemId),
+    queryKey: ["initialTreeItem", initialId],
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    queryFn: () => {
+      if (!initialId) {
+        return undefined;
+      }
+      return getDriver().getTree(initialId);
+    },
   });
 
   const getSelectedItems = () => {
@@ -101,9 +137,13 @@ export const ExplorerProvider = ({
       value={{
         selectedItemIds,
         setSelectedItemIds,
+        treeIsInitialized,
+        setTreeIsInitialized,
+        firstLevelItems,
         displayMode,
         selectedItems: getSelectedItems(),
         itemId,
+        initialId,
         item,
         tree,
         children: itemChildren,
@@ -115,6 +155,26 @@ export const ExplorerProvider = ({
         setRightPanelOpen,
       }}
     >
+      <TreeProvider
+        initialTreeData={[]}
+        initialNodeId={initialId}
+        onLoadChildren={async (id) => {
+          const children = await driver.getChildren(id, {
+            type: ItemType.FOLDER,
+          });
+          const result = children.map((item) =>
+            itemToTreeItem(item, id)
+          ) as TreeViewDataType<Item>[];
+
+          return result;
+        }}
+        onRefresh={async (id) => {
+          const item = await driver.getItem(id);
+          return itemToTreeItem(item) as TreeViewDataType<Item>;
+        }}
+      >
+        <ExplorerDndProvider>{children}</ExplorerDndProvider>
+      </TreeProvider>
       <input
         {...dropZone.getInputProps({
           webkitdirectory: "true",
@@ -126,8 +186,26 @@ export const ExplorerProvider = ({
           id: "import-files",
         })}
       />
-      {children}
+
       <Toaster />
     </ExplorerContext.Provider>
   );
+};
+
+export const itemToTreeItem = (item: Item, parentId?: string): TreeItem => {
+  return {
+    ...item,
+    parentId: parentId,
+    childrenCount: item.numchild_folder ?? 0,
+    children:
+      item.children?.map((child) => itemToTreeItem(child, item.id)) ?? [],
+    nodeType: TreeViewNodeTypeEnum.NODE,
+  };
+};
+
+export const itemsToTreeItems = (
+  items: Item[],
+  parentId?: string
+): TreeItem[] => {
+  return items.map((item) => itemToTreeItem(item, parentId));
 };

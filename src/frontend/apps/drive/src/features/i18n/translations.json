@@ -62,7 +62,9 @@
         "tree": {
           "createFolder": "Create",
           "import": "Import",
-          "search": "Search"
+          "search": "Search",
+          "personalSpace": "Personal Space",
+          "sharedSpace": "Shared Space"
         },
         "selectionBar": {
           "caption_one": "1 item selected",
@@ -174,6 +176,8 @@
         },
         "tree": {
           "createFolder": "Créer",
+          "personalSpace": "Espace personnel",
+          "sharedSpace": "Espace partagé",
           "search": "Rechercher",
           "import": {
             "label": "Importer",

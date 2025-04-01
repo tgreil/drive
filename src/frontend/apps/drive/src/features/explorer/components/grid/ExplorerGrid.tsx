@@ -1,96 +1,106 @@
 import { ItemType } from "@/features/drivers/types";
 import { Item } from "@/features/drivers/types";
 import {
-  CellContext,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NavigationEventType, useExplorer } from "./ExplorerContext";
-import clsx from "clsx";
-import { DropdownMenu } from "@gouvfr-lasuite/ui-kit";
 import {
-  Button,
-  Loader,
-  Tooltip,
-  useCunningham,
-  useModal,
-} from "@openfun/cunningham-react";
+  itemToTreeItem,
+  NavigationEventType,
+  useExplorer,
+} from "../ExplorerContext";
+import clsx from "clsx";
+import { useTreeContext } from "@gouvfr-lasuite/ui-kit";
+import { Loader, useCunningham } from "@openfun/cunningham-react";
 import gridEmpty from "@/assets/grid_empty.png";
-import { timeAgo } from "../utils/utils";
+import { Droppable } from "../Droppable";
 import { ToasterItem } from "@/features/ui/components/toaster/Toaster";
 import { addToast } from "@/features/ui/components/toaster/Toaster";
-import { ItemIcon } from "./ItemIcon";
-import { useMutationDeleteItems } from "../hooks/useMutations";
-import { useTableKeyboardNavigation } from "../hooks/useTableKeyboardNavigation";
-import { ExplorerRenameItemModal } from "./modals/ExplorerRenameItemModal";
+import { useTableKeyboardNavigation } from "../../hooks/useTableKeyboardNavigation";
+import { ExplorerGridNameCell } from "./ExplorerGridNameCell";
+import { ExplorerGridUpdatedAtCell } from "./ExplorerGridUpdatedAtCell";
+import { ExplorerGridActionsCell } from "./ExplorerGridActionsCell";
 
 export const ExplorerGrid = () => {
   const { t } = useTranslation();
   const { t: tc } = useCunningham();
   const lastSelectedRowRef = useRef<string | null>(null);
-  const columnHelper = createColumnHelper<Item>();
-
-  // Memorize this callback is used to avoid flickering on this cell, especially with the
-  // icon as <img> which get re-fetched on every render.
-  const nameCellRenderer = useCallback(
-    (params: CellContext<Item, string>) => (
-      <ItemTitle item={params.row.original} />
-    ),
-    []
-  );
-
   const {
     setSelectedItemIds,
+    treeIsInitialized,
     selectedItemIds,
     onNavigate,
     children,
     setRightPanelForcedItem,
-    setRightPanelOpen,
+    itemId,
   } = useExplorer();
-
-  const [renameItem, setRenameItem] = useState<Item>();
-  const renameModal = useModal();
-
-  const actionsCell = useCallback((params: CellContext<Item, unknown>) => {
-    return (
-      <ItemActions
-        item={params.row.original}
-        onInfo={() => {
-          setRightPanelForcedItem(params.row.original);
-          setRightPanelOpen(true);
-        }}
-        onRename={() => {
-          setRenameItem(params.row.original);
-          renameModal.open();
-        }}
-      />
-    );
-  }, []);
+  const treeContext = useTreeContext();
+  const columnHelper = createColumnHelper<Item>();
+  const [overedItemIds, setOveredItemIds] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const columns = [
     columnHelper.accessor("title", {
       header: t("explorer.grid.name"),
-      cell: nameCellRenderer,
+      cell: ExplorerGridNameCell,
     }),
     columnHelper.accessor("updated_at", {
       header: t("explorer.grid.last_update"),
-      cell: (info) => (
-        <div className="explorer__grid__item__last-update">
-          <Tooltip content={info.row.original.updated_at.toLocaleString()}>
-            <span>{timeAgo(info.row.original.updated_at)}</span>
-          </Tooltip>
-        </div>
-      ),
+      cell: ExplorerGridUpdatedAtCell,
     }),
     columnHelper.display({
       id: "actions",
-      cell: actionsCell,
+      cell: ExplorerGridActionsCell,
     }),
   ];
+
+  const folders = useMemo(() => {
+    if (!children) {
+      return [];
+    }
+
+    return children.filter((item) => item.type === ItemType.FOLDER);
+  }, [children]);
+
+  useEffect(() => {
+    if (treeIsInitialized) {
+      treeContext?.treeApiRef.current?.open(itemId);
+      treeContext?.treeApiRef.current?.openParents(itemId);
+    }
+  }, [itemId, treeIsInitialized]);
+
+  useEffect(() => {
+    if (!treeIsInitialized) {
+      return;
+    }
+    // We merge the existing children with the new folders or we create the children
+    const childrens = folders.map((folder) => {
+      const folderNode = treeContext?.treeData.getNode(folder.id);
+      if (folderNode) {
+        const children = folderNode.children?.map((child) => child) as Item[];
+        const item = itemToTreeItem({
+          ...folder,
+          children: children,
+        });
+        item.hasLoadedChildren = true;
+        return item;
+      } else {
+        const children = itemToTreeItem({
+          ...folder,
+          children: [],
+        });
+
+        return children;
+      }
+    });
+
+    treeContext?.treeData.setChildren(itemId, childrens);
+  }, [folders, treeIsInitialized]);
 
   const table = useReactTable({
     data: children ?? [],
@@ -110,12 +120,7 @@ export const ExplorerGrid = () => {
 
   const getContent = () => {
     if (isLoading) {
-      return (
-        <div className="c__datagrid__loader">
-          <div className="c__datagrid__loader__background" />
-          <Loader aria-label={tc("components.datagrid.loader_aria")} />
-        </div>
-      );
+      return <Loader aria-label={tc("components.datagrid.loader_aria")} />;
     }
     if (isEmpty) {
       return (
@@ -132,6 +137,7 @@ export const ExplorerGrid = () => {
         </div>
       );
     }
+
     return (
       <div className="c__datagrid__table__container">
         <table ref={tableRef} tabIndex={0} onKeyDown={onKeyDown}>
@@ -153,15 +159,25 @@ export const ExplorerGrid = () => {
           <tbody>
             {table.getRowModel().rows.map((row) => {
               const isSelected = !!selectedItemIds[row.original.id];
+              const isOvered = !!overedItemIds[row.original.id];
               return (
                 <tr
                   key={row.original.id}
                   className={clsx("selectable", {
                     selected: isSelected,
+                    over: isOvered,
                   })}
                   data-id={row.original.id}
                   tabIndex={0}
                   onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    const closest = target.closest("tr");
+                    // Because if we use modals or other components, even with a Portal, React triggers events on the original parent.
+                    // So we check that the clicked element is indeed an element of the table.
+                    if (!closest) {
+                      return;
+                    }
+
                     // Single click to select/deselect the item
                     if (e.detail === 1) {
                       if (e.shiftKey && lastSelectedRowRef.current) {
@@ -229,21 +245,37 @@ export const ExplorerGrid = () => {
                     }
                   }}
                 >
-                  {row.getVisibleCells().map((cell, index, array) => (
-                    <td
-                      key={cell.id}
-                      className={
-                        index === array.length - 1
-                          ? "c__datagrid__row__cell--actions"
-                          : ""
-                      }
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
+                  {row.getVisibleCells().map((cell, index, array) => {
+                    const isLastCell = index === array.length - 1;
+                    const isFirstCell = index === 0;
+                    return (
+                      <td
+                        key={cell.id}
+                        className={clsx("", {
+                          "c__datagrid__row__cell--actions": isLastCell,
+                          "c__datagrid__row__cell--title": isFirstCell,
+                        })}
+                      >
+                        <Droppable
+                          id={cell.id}
+                          item={row.original}
+                          disabled={row.original.type !== ItemType.FOLDER}
+                          onOver={(isOver, item) => {
+                            setOveredItemIds((prev) => ({
+                              ...prev,
+                              [row.original.id]:
+                                item.id === row.original.id ? false : isOver,
+                            }));
+                          }}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Droppable>
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
@@ -261,138 +293,6 @@ export const ExplorerGrid = () => {
       })}
     >
       {getContent()}
-      {renameItem && (
-        <ExplorerRenameItemModal
-          {...renameModal}
-          item={renameItem}
-          key={renameItem.id}
-          onClose={() => {
-            setRenameItem(undefined);
-            renameModal.close();
-          }}
-        />
-      )}
-    </div>
-  );
-};
-
-const ItemActions = ({
-  item,
-  onRename,
-  onInfo,
-}: {
-  item: Item;
-  onRename: () => void;
-  onInfo: () => void;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { t } = useTranslation();
-  const deleteItems = useMutationDeleteItems();
-
-  const handleDelete = async () => {
-    addToast(
-      <ToasterItem>
-        <span className="material-icons">delete</span>
-        <span>{t("explorer.actions.delete.toast", { count: 1 })}</span>
-      </ToasterItem>
-    );
-    await deleteItems.mutateAsync([item.id]);
-  };
-
-  return (
-    <>
-      <DropdownMenu
-        options={[
-          {
-            icon: <span className="material-icons">info</span>,
-            label: t("explorer.grid.actions.info"),
-            value: "info",
-            callback: onInfo,
-          },
-          {
-            icon: <span className="material-icons">group</span>,
-            label: t("explorer.grid.actions.share"),
-            callback: () => alert("Partager"),
-          },
-          {
-            icon: <span className="material-icons">download</span>,
-            label: t("explorer.grid.actions.download"),
-            value: "download",
-            showSeparator: true,
-          },
-          {
-            icon: <span className="material-icons">edit</span>,
-            label: t("explorer.grid.actions.rename"),
-            value: "rename",
-            callback: onRename,
-            showSeparator: true,
-          },
-          {
-            icon: <span className="material-icons">arrow_forward</span>,
-            label: t("explorer.grid.actions.move"),
-            value: "move",
-          },
-          {
-            icon: <span className="material-icons">delete</span>,
-            label: t("explorer.grid.actions.delete"),
-            value: "delete",
-            showSeparator: true,
-            callback: handleDelete,
-          },
-        ]}
-        isOpen={isOpen}
-        onOpenChange={setIsOpen}
-      >
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          color="primary-text"
-          className="c__language-picker"
-          icon={<span className="material-icons">more_horiz</span>}
-        ></Button>
-      </DropdownMenu>
-    </>
-  );
-};
-
-const ItemTitle = ({ item }: { item: Item }) => {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [isOverflown, setIsOverflown] = useState(false);
-
-  useEffect(() => {
-    const checkOverflow = () => {
-      const element = ref.current;
-      // Should always be defined, but just in case.
-      if (element) {
-        setIsOverflown(element.scrollWidth > element.clientWidth);
-      }
-    };
-    checkOverflow();
-
-    window.addEventListener("resize", checkOverflow);
-    return () => {
-      window.removeEventListener("resize", checkOverflow);
-    };
-  }, [item.title]);
-
-  const renderTitle = () => {
-    // We need to have the element holding the ref nested because the Tooltip component
-    // seems to make the top-most children ref null.
-    return (
-      <div style={{ display: "flex", overflow: "hidden" }}>
-        <span className="explorer__grid__item__name__text" ref={ref}>
-          {item.title}
-        </span>
-      </div>
-    );
-  };
-  return (
-    <div className="explorer__grid__item__name">
-      <ItemIcon item={item} />
-      {isOverflown ? (
-        <Tooltip content={item.title}>{renderTitle()}</Tooltip>
-      ) : (
-        renderTitle()
-      )}
     </div>
   );
 };

@@ -1,21 +1,25 @@
 import { SelectionArea, SelectionEvent } from "@viselect/react";
-import { ExplorerGrid } from "./ExplorerGrid";
+import { ExplorerGrid } from "./grid/ExplorerGrid";
 import { ExplorerBreadcrumbs } from "./ExplorerBreadcrumbs";
 import { useExplorer } from "./ExplorerContext";
 import { ExplorerSelectionBar } from "./ExplorerSelectionBar";
 import clsx from "clsx";
-import { useTranslation } from "react-i18next";
+import { Item } from "@/features/drivers/types";
+import { useEffect, useRef } from "react";
 export type FileUploadMeta = { file: File; progress: number };
 
 export const ExplorerInner = () => {
-  const { t } = useTranslation();
   const {
     setSelectedItemIds: setSelectedItems,
+    itemId,
     setRightPanelForcedItem,
     displayMode,
     selectedItems,
     dropZone,
   } = useExplorer();
+
+  const ref = useRef<Item[]>([]);
+  ref.current = selectedItems;
 
   const onSelectionStart = ({ event, selection }: SelectionEvent) => {
     if (!event?.ctrlKey && !event?.metaKey) {
@@ -45,46 +49,64 @@ export const ExplorerInner = () => {
     });
   };
 
-  // Debug
-  // const [uploadingState, setUploadingState] = useState<
-  //   Record<string, FileUploadMeta>
-  // >({
-  //   "image.png": { file: new File([], "image.png"), progress: 0 },
-  //   "video.mp4": { file: new File([], "video.mp4"), progress: 0 },
-  //   "audio.mp3": { file: new File([], "audio.mp3"), progress: 0 },
-  //   "document.pdf": { file: new File([], "document.pdf"), progress: 0 },
-  //   "image2.png": { file: new File([], "image2.png"), progress: 0 },
-  //   "image3.png": { file: new File([], "image3.png"), progress: 0 },
-  //   "image4.png": { file: new File([], "image4.png"), progress: 0 },
-  //   "image5.png": { file: new File([], "image5.png"), progress: 0 },
-  // });
-  // useEffect(() => {
-  //   if (fileUploadsToastId.current) {
-  //     return;
-  //   }
-  //   fileUploadsToastId.current = addToast(
-  //     <FileUploadToast uploadingState={uploadingState} />,
-  //     {
-  //       autoClose: false,
-  //     }
-  //   );
-  //   const interval = setInterval(() => {
-  //     setUploadingState((prev) => {
-  //       return Object.fromEntries(
-  //         Object.entries(prev).map(([key, meta]) => [
-  //           key,
-  //           {
-  //             ...meta,
-  //             progress: meta.progress + Math.floor(Math.random() * 21) + 10,
-  //           },
-  //         ])
-  //       );
-  //     });
-  //   }, 1000);
-  // }, []);
+  /**
+   * We prevent the the range selection if the target is not a name or a title
+   */
+  const beforeDrag = (target: HTMLElement): boolean => {
+    const isName = target.closest(".explorer__grid__item__name__text");
+    const isTitle = target.closest(".explorer__tree__item__title");
+
+    if (isName || isTitle) {
+      return false;
+    }
+
+    const parent = target.closest(".selectable");
+    if (parent) {
+      const isSelected = parent.classList.contains("selected");
+      return !isSelected;
+    }
+
+    return true;
+  };
+
+  /**
+   * When a user clicks outside the folder zone we want to reset its selection
+   */
+  const onBeforeStart = ({ event, selection }: SelectionEvent) => {
+    if (!event?.target) {
+      return;
+    }
+    const target = event.target as HTMLElement;
+
+    const classesToCheck = [
+      "explorer__content",
+      "explorer--app",
+      "c__breadcrumbs__button",
+      "explorer__content__breadcrumbs",
+      "explorer__content__filters",
+    ];
+    const hasAnyClass = classesToCheck.some((className) =>
+      target.classList.contains(className)
+    );
+    if (hasAnyClass) {
+      selection.clearSelection();
+      setSelectedItems({});
+    }
+  };
+
+  // We clear the selection when the itemId changes
+  useEffect(() => {
+    if (itemId) {
+      setSelectedItems({});
+    }
+  }, [itemId]);
 
   return (
     <SelectionArea
+      onBeforeDrag={(ev) => {
+        return beforeDrag(ev.event?.target as HTMLElement);
+      }}
+      onBeforeStart={onBeforeStart}
       onStart={onSelectionStart}
       onMove={onSelectionMove}
       selectables=".selectable"
