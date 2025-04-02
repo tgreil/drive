@@ -1,0 +1,29 @@
+.explorer__tree__item {
+  display: flex;
+  align-items: center;
+  gap: var(--c--theme--spacings--xs);
+  overflow: hidden;
+
+  &__title {
+    font-size: var(--c--theme--font--sizes--sm);
+    font-weight: 500;
+    color: var(--c--theme--colors--greyscale-1000);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  &__droppable {
+    border: 1.5px solid transparent;
+    border-radius: 4px;
+    &.over {
+      background-color: var(--c--theme--colors--primary-100);
+      border: 1.5px solid var(--c--theme--colors--primary-500);
+    }
+  }
+}
+
+.explorer__tree {
+  height: 100%;
+}

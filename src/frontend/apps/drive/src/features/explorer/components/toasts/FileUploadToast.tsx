@@ -39,20 +39,19 @@ export const FileUploadToast = (
           })}
         >
           {Object.entries(props.uploadingState)
-            .reverse()
-            .map(([name, meta]) => (
-              <div key={name} className="file-upload-toast__files__item">
-                <div className="file-upload-toast__files__item__name">
-                  <span>{name}</span>
-                  <span className="file-upload-toast__files__item__size">
-                    {prettyBytes(meta.file.size)}
-                  </span>
-                </div>
-                <div className="file-upload-toast__files__item__progress">
-                  <CircularProgress progress={meta.progress} />
-                </div>
+          .map(([name, meta]) => (
+            <div key={name} className="file-upload-toast__files__item">
+              <div className="file-upload-toast__files__item__name">
+                <span>{name}</span>
+                <span className="file-upload-toast__files__item__size">
+                  {prettyBytes(meta.file.size)}
+                </span>
               </div>
-            ))}
+              <div className="file-upload-toast__files__item__progress">
+                <CircularProgress progress={meta.progress} />
+              </div>
+            </div>
+          ))}
         </div>
         <div className="file-upload-toast__description">
           <div>

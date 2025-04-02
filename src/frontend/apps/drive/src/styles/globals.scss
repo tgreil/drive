@@ -8,6 +8,7 @@
 @use "./../features/users/components/User.scss";
 @use "./../features/ui/components/breadcrumbs";
 @use "./../features/ui/components/toaster";
+@use "./../features/explorer/components/tree/ExplorerTree.scss";
 @use "./../features/ui/components/info/InfoRow.scss";
 body {
   margin: 0;

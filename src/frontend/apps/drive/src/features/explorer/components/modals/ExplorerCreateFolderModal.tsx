@@ -1,4 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
 import {
   Button,
   Modal,
@@ -7,11 +6,10 @@ import {
 } from "@openfun/cunningham-react";
 import { useExplorer } from "../ExplorerContext";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { getDriver } from "@/features/config/Config";
 import { RhfInput } from "@/features/forms/components/RhfInput";
 import { useMutationCreateFolder } from "../../hooks/useMutations";
+import { useTreeContext } from "@gouvfr-lasuite/ui-kit";
 
 type Inputs = {
   title: string;
@@ -21,17 +19,24 @@ export const ExplorerCreateFolderModal = (
   props: Pick<ModalProps, "isOpen" | "onClose">
 ) => {
   const { item, itemId } = useExplorer();
+  const treeContext = useTreeContext();
   const { t } = useTranslation();
   const form = useForm<Inputs>();
   const createFolder = useMutationCreateFolder();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     form.reset();
-    createFolder.mutate({
-      ...data,
-      parentId: itemId,
-    });
-    props.onClose();
+    createFolder.mutate(
+      {
+        ...data,
+        parentId: itemId,
+      },
+      {
+        onSuccess: (data) => {
+          props.onClose();
+        },
+      }
+    );
   };
 
   return (
