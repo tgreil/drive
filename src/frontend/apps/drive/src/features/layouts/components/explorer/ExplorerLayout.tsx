@@ -6,8 +6,10 @@ import { HeaderRight } from "../header/Header";
 import {
   ExplorerProvider,
   NavigationEvent,
+  useExplorer,
 } from "@/features/explorer/components/ExplorerContext";
 import { useRouter } from "next/router";
+import { ExplorerRightPanelContent } from "@/features/explorer/components/right-panel/ExplorerRightPanelContent";
 
 /**
  * This layout is used for the explorer page.
@@ -32,14 +34,29 @@ export const ExplorerLayout = ({ children }: { children: React.ReactNode }) => {
       displayMode="app"
       onNavigate={onNavigate}
     >
-      <MainLayout
-        enableResize
-        leftPanelContent={<ExplorerTree />}
-        icon={<img src={logo.src} alt="logo" />}
-        rightHeaderContent={<HeaderRight />}
-      >
-        {children}
-      </MainLayout>
+      <MainExplorerLayout>{children}</MainExplorerLayout>
     </ExplorerProvider>
+  );
+};
+
+const MainExplorerLayout = ({ children }: { children: React.ReactNode }) => {
+  const {
+    rightPanelOpen,
+    setRightPanelOpen,
+    rightPanelForcedItem: rightPanelItem,
+  } = useExplorer();
+
+  return (
+    <MainLayout
+      enableResize
+      rightPanelContent={<ExplorerRightPanelContent item={rightPanelItem} />}
+      rightPanelIsOpen={rightPanelOpen}
+      onToggleRightPanel={() => setRightPanelOpen(!rightPanelOpen)}
+      leftPanelContent={<ExplorerTree />}
+      icon={<img src={logo.src} alt="logo" />}
+      rightHeaderContent={<HeaderRight />}
+    >
+      {children}
+    </MainLayout>
   );
 };

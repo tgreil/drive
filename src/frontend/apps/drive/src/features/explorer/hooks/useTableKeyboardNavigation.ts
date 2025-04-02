@@ -25,7 +25,7 @@ export const useTableKeyboardNavigation = ({
       tableRef.current.focus();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tableRef.current, selectedItemIds]);
+  }, [tableRef.current]);
 
   useEffect(() => {
     // When we change item during navigation, the first arrow trigger must select the first item. Reset the state.

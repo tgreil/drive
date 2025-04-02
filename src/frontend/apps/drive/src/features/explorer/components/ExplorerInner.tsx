@@ -11,6 +11,7 @@ export const ExplorerInner = () => {
   const { t } = useTranslation();
   const {
     setSelectedItemIds: setSelectedItems,
+    setRightPanelForcedItem,
     displayMode,
     selectedItems,
     dropZone,
@@ -21,6 +22,7 @@ export const ExplorerInner = () => {
       selection.clearSelection();
       setSelectedItems({});
     }
+    setRightPanelForcedItem(undefined);
   };
 
   const onSelectionMove = ({
@@ -28,6 +30,7 @@ export const ExplorerInner = () => {
       changed: { added, removed },
     },
   }: SelectionEvent) => {
+    setRightPanelForcedItem(undefined);
     setSelectedItems((prev) => {
       const next = { ...prev };
       added.forEach((element) => {

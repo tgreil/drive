@@ -7,9 +7,11 @@ export type Item = {
   id: string;
   title: string;
   filename: string;
+  creator: string;
   type: ItemType;
   upload_state: string;
   updated_at: Date;
+  created_at: Date;
   children?: Item[];
   url?: string;
   mimetype?: string;
