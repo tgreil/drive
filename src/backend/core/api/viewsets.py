@@ -20,6 +20,7 @@ import rest_framework as drf
 from rest_framework import filters, status, viewsets
 from rest_framework import response as drf_response
 from rest_framework.permissions import AllowAny
+from rest_framework.throttling import UserRateThrottle
 
 from core import enums, models
 
@@ -128,14 +129,35 @@ class Pagination(drf.pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+class UserListThrottleBurst(UserRateThrottle):
+    """Throttle for the user list endpoint."""
+
+    scope = "user_list_burst"
+
+
+class UserListThrottleSustained(UserRateThrottle):
+    """Throttle for the user list endpoint."""
+
+    scope = "user_list_sustained"
+
+
 class UserViewSet(
     drf.mixins.UpdateModelMixin, viewsets.GenericViewSet, drf.mixins.ListModelMixin
 ):
     """User ViewSet"""
 
     permission_classes = [permissions.IsSelf]
-    queryset = models.User.objects.all()
+    queryset = models.User.objects.all().filter(is_active=True)
     serializer_class = serializers.UserSerializer
+    pagination_class = None
+    throttle_classes = []
+
+    def get_throttles(self):
+        self.throttle_classes = []
+        if self.action == "list":
+            self.throttle_classes = [UserListThrottleBurst, UserListThrottleSustained]
+
+        return super().get_throttles()
 
     def get_queryset(self):
         """
@@ -150,11 +172,11 @@ class UserViewSet(
             return queryset
 
         # Exclude all users already in the given item
-        if item_id := self.request.GET.get("item_id", ""):
+        if item_id := self.request.query_params.get("item_id", ""):
             queryset = queryset.exclude(itemaccess__item_id=item_id)
 
-        if not (query := self.request.GET.get("q", "")):
-            return queryset
+        if not (query := self.request.query_params.get("q", "")) or len(query) < 5:
+            return queryset.none()
 
         # For emails, match emails by Levenstein distance to prevent typing errors
         if "@" in query:
@@ -163,7 +185,7 @@ class UserViewSet(
                     distance=RawSQL("levenshtein(email::text, %s::text)", (query,))
                 )
                 .filter(distance__lte=3)
-                .order_by("distance", "email")
+                .order_by("distance", "email")[: settings.API_USERS_LIST_LIMIT]
             )
 
         # Use trigram similarity for non-email-like queries
@@ -173,7 +195,7 @@ class UserViewSet(
             queryset.filter(email__trigram_word_similar=query)
             .annotate(similarity=TrigramSimilarity("email", query))
             .filter(similarity__gt=0.2)
-            .order_by("-similarity", "email")
+            .order_by("-similarity", "email")[: settings.API_USERS_LIST_LIMIT]
         )
 
     @drf.decorators.action(

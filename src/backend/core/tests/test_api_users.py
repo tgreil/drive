@@ -24,7 +24,7 @@ def test_api_users_list_anonymous():
 
 def test_api_users_list_authenticated():
     """
-    Authenticated users should be able to list users.
+    Authenticated users should not be able to list users without a query.
     """
     user = factories.UserFactory()
 
@@ -36,8 +36,100 @@ def test_api_users_list_authenticated():
         "/api/v1.0/users/",
     )
     assert response.status_code == 200
-    content = response.json()
-    assert len(content["results"]) == 3
+    assert response.json() == []
+
+
+def test_api_users_list_query_inactive():
+    """Inactive users should not be listed."""
+    user = factories.UserFactory()
+    client = APIClient()
+    client.force_login(user)
+
+    factories.UserFactory(email="john.doe@example.com", is_active=False)
+    lennon = factories.UserFactory(email="john.lennon@example.com")
+
+    response = client.get("/api/v1.0/users/?q=john.")
+
+    assert response.status_code == 200
+    user_ids = [user["id"] for user in response.json()]
+    assert user_ids == [str(lennon.id)]
+
+
+def test_api_users_list_query_short_queries():
+    """
+    Queries shorter than 5 characters should return an empty result set.
+    """
+
+    user = factories.UserFactory()
+    client = APIClient()
+    client.force_login(user)
+
+    factories.UserFactory(email="john.doe@example.com")
+    factories.UserFactory(email="john.lennon@example.com")
+
+    response = client.get("/api/v1.0/users/?q=jo")
+    assert response.status_code == 200
+    assert response.json() == []
+
+    response = client.get("/api/v1.0/users/?q=john")
+    assert response.status_code == 200
+    assert response.json() == []
+
+    response = client.get("/api/v1.0/users/?q=john.")
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+
+
+def test_api_users_list_limit(settings):
+    """
+    Authenticated users should be able to list users and the number of results
+    should be limited to 10.
+    """
+    user = factories.UserFactory()
+
+    client = APIClient()
+    client.force_login(user)
+
+    # Use a base name with a length equal 5 to test that the limit is applied
+    base_name = "alice"
+    for i in range(15):
+        factories.UserFactory(email=f"{base_name}.{i}@example.com")
+
+    response = client.get(
+        "/api/v1.0/users/?q=alice",
+    )
+    assert response.status_code == 200
+    assert len(response.json()) == 5
+
+    # if the limit is changed, all users should be returned
+    settings.API_USERS_LIST_LIMIT = 100
+    response = client.get(
+        "/api/v1.0/users/?q=alice",
+    )
+    assert response.status_code == 200
+    assert len(response.json()) == 15
+
+
+def test_api_users_list_throttling_authenticated(settings):
+    """
+    Authenticated users should be throttled.
+    """
+    user = factories.UserFactory()
+    client = APIClient()
+    client.force_login(user)
+
+    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["user_list_burst"] = "3/minute"
+
+    for _i in range(3):
+        response = client.get(
+            "/api/v1.0/users/?q=alice",
+        )
+        assert response.status_code == 200
+
+    response = client.get(
+        "/api/v1.0/users/?q=alice",
+    )
+    assert response.status_code == 429
 
 
 def test_api_users_list_query_email():
@@ -58,21 +150,21 @@ def test_api_users_list_query_email():
         "/api/v1.0/users/?q=david.bowman@work.com",
     )
     assert response.status_code == 200
-    user_ids = [user["id"] for user in response.json()["results"]]
+    user_ids = [user["id"] for user in response.json()]
     assert user_ids == [str(dave.id)]
 
     response = client.get(
         "/api/v1.0/users/?q=davig.bovman@worm.com",
     )
     assert response.status_code == 200
-    user_ids = [user["id"] for user in response.json()["results"]]
+    user_ids = [user["id"] for user in response.json()]
     assert user_ids == [str(dave.id)]
 
     response = client.get(
         "/api/v1.0/users/?q=davig.bovman@worm.cop",
     )
     assert response.status_code == 200
-    user_ids = [user["id"] for user in response.json()["results"]]
+    user_ids = [user["id"] for user in response.json()]
     assert user_ids == []
 
 
@@ -94,13 +186,13 @@ def test_api_users_list_query_email_matching():
         "/api/v1.0/users/?q=alice.johnson@example.gouv.fr",
     )
     assert response.status_code == 200
-    user_ids = [user["id"] for user in response.json()["results"]]
+    user_ids = [user["id"] for user in response.json()]
     assert user_ids == [str(user1.id), str(user2.id), str(user3.id), str(user4.id)]
 
     response = client.get("/api/v1.0/users/?q=alicia.johnnson@example.gouv.fr")
 
     assert response.status_code == 200
-    user_ids = [user["id"] for user in response.json()["results"]]
+    user_ids = [user["id"] for user in response.json()]
     assert user_ids == [str(user4.id), str(user2.id), str(user1.id), str(user5.id)]
 
 
@@ -126,7 +218,7 @@ def test_api_users_list_query_email_exclude_doc_user():
     )
 
     assert response.status_code == 200
-    user_ids = [user["id"] for user in response.json()["results"]]
+    user_ids = [user["id"] for user in response.json()]
     assert user_ids == [str(nicole_fool.id)]
 
 
