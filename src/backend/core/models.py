@@ -723,11 +723,11 @@ class Item(TreeModel, BaseModel):
             "link_configuration": is_owner_or_admin,
             "invite_owner": is_owner,
             "move": is_owner_or_admin and not self.ancestors_deleted_at,
-            "partial_update": can_update,
             "restore": is_owner,
             "retrieve": can_get,
             "tree": can_get,
             "media_auth": can_get,
+            "partial_update": can_update,
             "update": can_update,
             "upload_ended": is_owner_or_admin,
         }

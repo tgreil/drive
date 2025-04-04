@@ -363,14 +363,25 @@ def test_api_items_update_title_unique_in_current_path():
     client.force_login(user)
 
     root = factories.ItemFactory(
-        title="item1", type=models.ItemTypeChoices.FOLDER, users=[user]
+        title="item1",
+        type=models.ItemTypeChoices.FOLDER,
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
     )
     child = factories.ItemFactory(
-        title="child1", type=models.ItemTypeChoices.FOLDER, parent=root, users=[user]
+        title="child1",
+        type=models.ItemTypeChoices.FOLDER,
+        parent=root,
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
     )
 
     factories.ItemFactory(
-        title="child2", type=models.ItemTypeChoices.FOLDER, parent=root, users=[user]
+        title="child2",
+        type=models.ItemTypeChoices.FOLDER,
+        parent=root,
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
     )
 
     # update child1 to rename it to child2 should fails
@@ -395,15 +406,26 @@ def test_api_items_update_title_unique_in_current_path_soft_deleted():
     client.force_login(user)
 
     root = factories.ItemFactory(
-        title="item1", type=models.ItemTypeChoices.FOLDER, users=[user]
+        title="item1",
+        type=models.ItemTypeChoices.FOLDER,
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
     )
     child = factories.ItemFactory(
-        title="child1", type=models.ItemTypeChoices.FOLDER, parent=root, users=[user]
+        title="child1",
+        type=models.ItemTypeChoices.FOLDER,
+        parent=root,
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
     )
     child.soft_delete()
 
     child2 = factories.ItemFactory(
-        title="child2", type=models.ItemTypeChoices.FOLDER, parent=root, users=[user]
+        title="child2",
+        type=models.ItemTypeChoices.FOLDER,
+        parent=root,
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
     )
 
     # update child 2 title using child 1 title is allowed
@@ -424,7 +446,11 @@ def test_api_items_update_description():
     client = APIClient()
     client.force_login(user)
 
-    item = factories.ItemFactory(description="Old description", users=[user])
+    item = factories.ItemFactory(
+        description="Old description",
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
+    )
 
     response = client.patch(
         f"/api/v1.0/items/{item.id!s}/",
@@ -447,7 +473,11 @@ def test_api_items_update_empty_description():
     client = APIClient()
     client.force_login(user)
 
-    item = factories.ItemFactory(description="Old description", users=[user])
+    item = factories.ItemFactory(
+        description="Old description",
+        creator=user,
+        users=[(user, models.RoleChoices.OWNER)],
+    )
 
     response = client.patch(
         f"/api/v1.0/items/{item.id!s}/",
