@@ -69,12 +69,12 @@ You can then login with sub `admin` and password `admin`.
 Run the front with:
 
 ```bash
-$ make run-front-desk
+$ make run-with-frontend
 ```
 
 Then access [http://localhost:3000](http://localhost:3000) with :
-user: people
-password: people
+user: drive
+password: drive
 
 ## Contributing
 
