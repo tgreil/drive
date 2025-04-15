@@ -29,11 +29,11 @@ backend:
     LOGGING_LEVEL_LOGGERS_APP: INFO
     USER_OIDC_FIELD_TO_SHORTNAME: "given_name"
     USER_OIDC_FIELDS_TO_FULLNAME: "given_name,usual_name"
-    OIDC_OP_JWKS_ENDPOINT: https://keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/certs
-    OIDC_OP_AUTHORIZATION_ENDPOINT: https://keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/auth
-    OIDC_OP_TOKEN_ENDPOINT: https://keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/token
-    OIDC_OP_USER_ENDPOINT: https://keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/userinfo
-    OIDC_OP_LOGOUT_ENDPOINT: https://keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/logout
+    OIDC_OP_JWKS_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/certs
+    OIDC_OP_AUTHORIZATION_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/auth
+    OIDC_OP_TOKEN_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/token
+    OIDC_OP_USER_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/userinfo
+    OIDC_OP_LOGOUT_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/logout
     OIDC_RP_CLIENT_ID: drive
     OIDC_RP_CLIENT_SECRET: ThisIsAnExampleKeyForDevPurposeOnly
     OIDC_RP_SIGN_ALGO: RS256
@@ -98,7 +98,7 @@ frontend:
   envVars:
     PORT: 8080
     NEXT_PUBLIC_API_ORIGIN: https://drive.127.0.0.1.nip.io
-    NEXT_PUBLIC_S3_DOMAIN_REPLACE: https://minio.127.0.0.1.nip.io
+    NEXT_PUBLIC_S3_DOMAIN_REPLACE: https://drive-minio.127.0.0.1.nip.io
 
   replicas: 1
   command:
