@@ -12,8 +12,13 @@ from mozilla_django_oidc.utils import (
     absolutify,
 )
 from mozilla_django_oidc.views import (
+    OIDCAuthenticationCallbackView as MozillaOIDCAuthenticationCallbackView,
+)
+from mozilla_django_oidc.views import (
     OIDCLogoutView as MozillaOIDCOIDCLogoutView,
 )
+
+from core.authentication.exceptions import EmailNotAlphaAuthorized
 
 
 class OIDCLogoutView(MozillaOIDCOIDCLogoutView):
@@ -135,3 +140,17 @@ class OIDCLogoutCallbackView(MozillaOIDCOIDCLogoutView):
         auth.logout(request)
 
         return HttpResponseRedirect(self.redirect_url)
+
+
+class OIDCAuthenticationCallbackView(MozillaOIDCAuthenticationCallbackView):
+    """Custom view for handling the authentication callback from the OpenID Connect (OIDC) provider.
+
+    Handles the callback after authentication from the identity provider (OP).
+    Verifies the state parameter and performs necessary authentication actions.
+    """
+
+    def get(self, request):
+        try:
+            return super().get(request)
+        except EmailNotAlphaAuthorized:
+            return HttpResponseRedirect(self.failure_url + "?auth_error=alpha")

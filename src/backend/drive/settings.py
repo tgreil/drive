@@ -16,6 +16,7 @@ from socket import gethostbyname, gethostname
 
 from django.utils.translation import gettext_lazy as _
 
+import posthog
 import sentry_sdk
 from configurations import Configuration, values
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -114,6 +115,16 @@ class Base(Configuration):
             ),
         },
     }
+
+    FEATURES_ALPHA = values.BooleanValue(
+        False, environ_name="FEATURES_ALPHA", environ_prefix=None
+    )
+
+    # Posthog
+    POSTHOG_KEY = values.Value(None, environ_name="POSTHOG_KEY", environ_prefix=None)
+    POSTHOG_HOST = values.Value(
+        "https://eu.i.posthog.com", environ_name="POSTHOG_HOST", environ_prefix=None
+    )
 
     # Media
     AWS_S3_ENDPOINT_URL = values.Value(
@@ -399,11 +410,6 @@ class Base(Configuration):
         None, environ_name="FRONTEND_THEME", environ_prefix=None
     )
 
-    # Posthog
-    POSTHOG_KEY = values.DictValue(
-        None, environ_name="POSTHOG_KEY", environ_prefix=None
-    )
-
     # Crisp
     CRISP_WEBSITE_ID = values.Value(
         None, environ_name="CRISP_WEBSITE_ID", environ_prefix=None
@@ -487,6 +493,8 @@ class Base(Configuration):
         environ_name="OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION",
         environ_prefix=None,
     )
+
+    OIDC_CALLBACK_CLASS = "core.authentication.views.OIDCAuthenticationCallbackView"
 
     # WARNING: Enabling this setting allows multiple user accounts to share the same email
     # address. This may cause security issues and is not recommended for production use when
@@ -615,6 +623,10 @@ class Base(Configuration):
                 "Both OIDC_FALLBACK_TO_EMAIL_FOR_IDENTIFICATION and "
                 "OIDC_ALLOW_DUPLICATE_EMAILS cannot be set to True simultaneously. "
             )
+
+        if cls.POSTHOG_KEY is not None:
+            posthog.api_key = cls.POSTHOG_KEY
+            posthog.host = cls.POSTHOG_HOST
 
 
 class Build(Base):

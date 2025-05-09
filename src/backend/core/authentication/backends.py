@@ -6,11 +6,13 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.utils.translation import gettext_lazy as _
 
+import posthog
 import requests
 from mozilla_django_oidc.auth import (
     OIDCAuthenticationBackend as MozillaOIDCAuthenticationBackend,
 )
 
+from core.authentication.exceptions import EmailNotAlphaAuthorized
 from core.models import DuplicateEmailError, User
 
 logger = logging.getLogger(__name__)
@@ -87,6 +89,10 @@ class OIDCAuthenticationBackend(MozillaOIDCAuthenticationBackend):
 
         sub = user_info["sub"]
         email = user_info.get("email")
+
+        if settings.FEATURES_ALPHA:
+            if not posthog.feature_enabled("alpha", email):
+                raise EmailNotAlphaAuthorized()
 
         # Get user's full name from OIDC fields defined in settings
         full_name = self.compute_full_name(user_info)

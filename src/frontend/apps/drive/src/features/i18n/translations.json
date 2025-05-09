@@ -19,6 +19,11 @@
         "title": "Easy storage and sharing",
         "subtitle": "Store and share your files easily in a cloud collaborative space."
       },
+      "authentication": {
+        "error": {
+          "alpha": "This application is in alpha and its access is restricted."
+        }
+      },
       "mime": {
         "calc": "Spreadsheet",
         "doc": "Document",
@@ -256,6 +261,11 @@
       "home": {
         "title": "Stockage et partage faciles",
         "subtitle": "Stockez et partagez vos fichiers simplement dans un espace cloud collaboratif synchronisé."
+      },
+      "authentication": {
+        "error": {
+          "alpha": "Cette application est en version alpha et son accès est restreint."
+        }
       },
       "mime": {
         "calc": "Tableur",

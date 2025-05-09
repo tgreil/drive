@@ -19,6 +19,11 @@ import {
   HeaderRight,
   LanguagePicker,
 } from "@/features/layouts/components/header/Header";
+import {
+  addToast,
+  Toaster,
+  ToasterItem,
+} from "@/features/ui/components/toaster/Toaster";
 export default function HomePage() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -28,6 +33,20 @@ export default function HomePage() {
       gotoLastVisitedItem();
     }
   }, [user]);
+
+  useEffect(() => {
+    const failure = new URLSearchParams(window.location.search).get(
+      "auth_error"
+    );
+    if (failure === "alpha") {
+      addToast(
+        <ToasterItem type="error">
+          <span className="material-icons">science</span>
+          <span>{t("authentication.error.alpha")}</span>
+        </ToasterItem>
+      );
+    }
+  }, []);
 
   if (user) {
     return null;
@@ -77,6 +96,7 @@ HomePage.getLayout = function getLayout(page: React.ReactElement) {
           rightHeaderContent={<HeaderRight />}
         >
           {page}
+          <Toaster />
         </MainLayout>
       </GlobalLayout>
     </div>
