@@ -8,10 +8,8 @@ export const ResponsiveDivs = () => {
 
 export const isTablet = () => {
   return (
-    document
-      .querySelector("#responsive-tablet")
-      ?.computedStyleMap()
-      .get("display")
-      ?.toString() === "block"
+    getComputedStyle(
+      document.querySelector("#responsive-tablet")!
+    ).getPropertyValue("display") === "block"
   );
 };
