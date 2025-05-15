@@ -1,5 +1,5 @@
 import { Filter } from "@gouvfr-lasuite/ui-kit";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import folderIcon from "@/assets/folder/folder.svg";
 import mimeOther from "@/assets/files/icons/mime-other.svg";

@@ -10,7 +10,6 @@ import clsx from "clsx";
 import { Item } from "@/features/drivers/types";
 import { useEffect, useRef } from "react";
 import { ExplorerProps } from "./Explorer";
-import { useTranslation } from "react-i18next";
 import { ExplorerFilters } from "./ExplorerFilters";
 import { useResponsive } from "@gouvfr-lasuite/ui-kit";
 export type FileUploadMeta = { file: File; progress: number };
@@ -24,8 +23,6 @@ export const ExplorerInner = (props: ExplorerProps) => {
     selectedItems,
     dropZone,
   } = useExplorer();
-
-  const { t } = useTranslation();
 
   const ref = useRef<Item[]>([]);
   ref.current = selectedItems;

@@ -5,8 +5,6 @@ import { NavigationEventType, useExplorer } from "./ExplorerContext";
 import { useMemo } from "react";
 import { TreeViewNodeTypeEnum, useTreeContext } from "@gouvfr-lasuite/ui-kit";
 import { Item, TreeItem } from "@/features/drivers/types";
-import workspaceIcon from "@/assets/tree/workspace.svg";
-import mainWorkspaceIcon from "@/assets/tree/main-workspace.svg";
 import { ExplorerTreeItemIcon } from "./tree/ExplorerTreeItem";
 
 export const ExplorerBreadcrumbs = () => {

@@ -4,7 +4,6 @@ import {
   ModalProps,
   ModalSize,
 } from "@openfun/cunningham-react";
-import { useExplorer } from "../ExplorerContext";
 import { useTranslation } from "react-i18next";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { RhfInput } from "@/features/forms/components/RhfInput";
