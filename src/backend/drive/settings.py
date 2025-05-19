@@ -494,7 +494,17 @@ class Base(Configuration):
         environ_prefix=None,
     )
 
-    OIDC_CALLBACK_CLASS = "core.authentication.views.OIDCAuthenticationCallbackView"
+    OIDC_STORE_ACCESS_TOKEN = values.BooleanValue(
+        default=False, environ_name="OIDC_STORE_ACCESS_TOKEN", environ_prefix=None
+    )
+    OIDC_STORE_REFRESH_TOKEN = values.BooleanValue(
+        default=False, environ_name="OIDC_STORE_REFRESH_TOKEN", environ_prefix=None
+    )
+    OIDC_STORE_REFRESH_TOKEN_KEY = values.Value(
+        default=None,
+        environ_name="OIDC_STORE_REFRESH_TOKEN_KEY",
+        environ_prefix=None,
+    )
 
     # WARNING: Enabling this setting allows multiple user accounts to share the same email
     # address. This may cause security issues and is not recommended for production use when
@@ -505,17 +515,24 @@ class Base(Configuration):
         environ_prefix=None,
     )
 
-    USER_OIDC_ESSENTIAL_CLAIMS = values.ListValue(
-        default=[], environ_name="USER_OIDC_ESSENTIAL_CLAIMS", environ_prefix=None
-    )
-    USER_OIDC_FIELDS_TO_FULLNAME = values.ListValue(
-        default=["first_name", "last_name"],
-        environ_name="USER_OIDC_FIELDS_TO_FULLNAME",
+    OIDC_USER_INFO = values.ListValue(
+        default=values.ListValue(  # retrocompatibility
+            default=[],
+            environ_name="USER_OIDC_ESSENTIAL_CLAIMS",
+            environ_prefix=None,
+        ),
+        environ_name="OIDC_USER_INFO",
         environ_prefix=None,
     )
-    USER_OIDC_FIELD_TO_SHORTNAME = values.Value(
+
+    OIDC_USERINFO_FULLNAME_FIELDS = values.ListValue(
+        default=["first_name", "last_name"],
+        environ_name="OIDC_USERINFO_FULLNAME_FIELDS",
+        environ_prefix=None,
+    )
+    OIDC_USERINFO_SHORTNAME_FIELD = values.Value(
         default="first_name",
-        environ_name="USER_OIDC_FIELD_TO_SHORTNAME",
+        environ_name="OIDC_USERINFO_SHORTNAME_FIELD",
         environ_prefix=None,
     )
 

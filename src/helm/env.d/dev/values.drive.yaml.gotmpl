@@ -27,8 +27,6 @@ backend:
     DJANGO_EMAIL_USE_SSL: False
     LOGGING_LEVEL_LOGGERS_ROOT: INFO
     LOGGING_LEVEL_LOGGERS_APP: INFO
-    USER_OIDC_FIELD_TO_SHORTNAME: "given_name"
-    USER_OIDC_FIELDS_TO_FULLNAME: "given_name,usual_name"
     OIDC_OP_JWKS_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/certs
     OIDC_OP_AUTHORIZATION_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/auth
     OIDC_OP_TOKEN_ENDPOINT: https://drive-keycloak.127.0.0.1.nip.io/realms/drive/protocol/openid-connect/token
@@ -38,6 +36,8 @@ backend:
     OIDC_RP_CLIENT_SECRET: ThisIsAnExampleKeyForDevPurposeOnly
     OIDC_RP_SIGN_ALGO: RS256
     OIDC_RP_SCOPES: "openid email"
+    OIDC_USER_FIELD_TO_SHORTNAME: "given_name"
+    OIDC_USER_FIELDS_TO_FULLNAME: "given_name,usual_name"
     LOGIN_REDIRECT_URL: https://drive.127.0.0.1.nip.io
     LOGIN_REDIRECT_URL_FAILURE: https://drive.127.0.0.1.nip.io
     LOGOUT_REDIRECT_URL: https://drive.127.0.0.1.nip.io
