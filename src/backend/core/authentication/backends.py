@@ -5,10 +5,12 @@ import logging
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 
+import posthog
 from lasuite.oidc_login.backends import (
     OIDCAuthenticationBackend as LaSuiteOIDCAuthenticationBackend,
 )
 
+from core.authentication.exceptions import EmailNotAlphaAuthorized
 from core.models import DuplicateEmailError
 
 logger = logging.getLogger(__name__)
@@ -38,6 +40,10 @@ class OIDCAuthenticationBackend(LaSuiteOIDCAuthenticationBackend):
 
     def get_existing_user(self, sub, email):
         """Fetch existing user by sub or email."""
+
+        if settings.FEATURES_ALPHA:
+            if not posthog.feature_enabled("alpha", email):
+                raise EmailNotAlphaAuthorized()
 
         try:
             return self.UserModel.objects.get_user_by_sub_or_email(sub, email)
