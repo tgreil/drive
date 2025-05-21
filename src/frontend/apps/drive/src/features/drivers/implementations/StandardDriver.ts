@@ -58,6 +58,15 @@ export class StandardDriver extends Driver {
     return data;
   }
 
+  async updateUser(payload: Partial<User> & { id: string }): Promise<User> {
+    const response = await fetchAPI(`users/${payload.id}/`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    return data;
+  }
+
   async getChildren(id: string, filters?: ItemFilters): Promise<Item[]> {
     const params = {
       page_size: "100000",

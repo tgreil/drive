@@ -9,6 +9,7 @@ import { useAuth, logout } from "@/features/auth/Auth";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ExplorerSearchButton } from "@/features/explorer/components/ExplorerSearchButton";
+import { getDriver } from "@/features/config/Config";
 
 export const Header = () => {
   return (
@@ -61,11 +62,16 @@ export const HeaderRight = () => {
 export const LanguagePicker = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { i18n } = useTranslation();
-  const [selectedValues, setSelectedValues] = useState([i18n.language]);
+  const { user } = useAuth();
+  const driver = getDriver();
+  const [selectedValues, setSelectedValues] = useState([
+    user?.language || i18n.language,
+  ]);
   const languages = [
-    { label: "Français", value: "fr" },
-    { label: "English", value: "en" },
+    { label: "Français", value: "fr-fr" },
+    { label: "English", value: "en-us" },
   ];
+
   return (
     <DropdownMenu
       options={languages}
@@ -76,6 +82,9 @@ export const LanguagePicker = () => {
         i18n.changeLanguage(value).catch((err) => {
           console.error("Error changing language", err);
         });
+        if (user) {
+          driver.updateUser({ language: value, id: user.id });
+        }
       }}
       selectedValues={selectedValues}
     >

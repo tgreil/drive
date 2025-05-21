@@ -8,4 +8,5 @@
 export interface User {
   id: string;
   email: string;
+  language: string;
 }
