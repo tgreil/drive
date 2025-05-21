@@ -265,6 +265,7 @@ def test_api_users_retrieve_me_authenticated():
         "email": user.email,
         "full_name": user.full_name,
         "short_name": user.short_name,
+        "language": user.language,
     }
 
 
