@@ -4,6 +4,7 @@ Test item accesses API endpoints for users in drive's core app.
 
 import random
 
+from django.conf import settings
 from django.core import mail
 
 import pytest
@@ -114,7 +115,7 @@ def test_api_item_accesses_create_authenticated_administrator(via, mock_user_tea
     except for the "owner" role.
     An email should be sent to the accesses to notify them of the adding.
     """
-    user = factories.UserFactory()
+    user = factories.UserFactory(language=settings.LANGUAGE_CODE)
 
     client = APIClient()
     client.force_login(user)
@@ -197,7 +198,7 @@ def test_api_item_accesses_create_authenticated_owner(via, mock_user_teams):
     Owners of an item should be able to create item accesses whatever the role.
     An email should be sent to the accesses to notify them of the adding.
     """
-    user = factories.UserFactory()
+    user = factories.UserFactory(language=settings.LANGUAGE_CODE)
 
     client = APIClient()
     client.force_login(user)

@@ -6,6 +6,7 @@ import random
 from datetime import timedelta
 from unittest import mock
 
+from django.conf import settings
 from django.core import mail
 from django.test import override_settings
 from django.utils import timezone
@@ -357,7 +358,7 @@ def test_api_item_invitations_create_privileged_members(
     Only owners and administrators should be able to invite new users.
     Only owners can invite owners.
     """
-    user = factories.UserFactory()
+    user = factories.UserFactory(language=settings.LANGUAGE_CODE)
     item = factories.ItemFactory()
     if via == USER:
         factories.UserItemAccessFactory(item=item, user=user, role=inviting)
@@ -412,88 +413,11 @@ def test_api_item_invitations_create_privileged_members(
         }
 
 
-def test_api_item_invitations_create_email_from_content_language():
-    """
-    The email generated is from the language set in the Content-Language header
-    """
-    user = factories.UserFactory()
-    item = factories.ItemFactory()
-    factories.UserItemAccessFactory(item=item, user=user, role="owner")
-
-    invitation_values = {
-        "email": "guest@example.com",
-        "role": "reader",
-    }
-
-    assert len(mail.outbox) == 0
-
-    client = APIClient()
-    client.force_login(user)
-
-    response = client.post(
-        f"/api/v1.0/items/{item.id!s}/invitations/",
-        invitation_values,
-        format="json",
-        headers={"Content-Language": "fr-fr"},
-    )
-
-    assert response.status_code == 201
-    assert response.json()["email"] == "guest@example.com"
-    assert models.Invitation.objects.count() == 1
-    assert len(mail.outbox) == 1
-
-    email = mail.outbox[0]
-
-    assert email.to == ["guest@example.com"]
-
-    email_content = " ".join(email.body.split())
-    assert f"{user.full_name} a partagé un item avec vous!" in email_content
-
-
-def test_api_item_invitations_create_email_from_content_language_not_supported():
-    """
-    If the language from the Content-Language is not supported
-    it will display the default language, English.
-    """
-    user = factories.UserFactory()
-    item = factories.ItemFactory()
-    factories.UserItemAccessFactory(item=item, user=user, role="owner")
-
-    invitation_values = {
-        "email": "guest@example.com",
-        "role": "reader",
-    }
-
-    assert len(mail.outbox) == 0
-
-    client = APIClient()
-    client.force_login(user)
-
-    response = client.post(
-        f"/api/v1.0/items/{item.id!s}/invitations/",
-        invitation_values,
-        format="json",
-        headers={"Content-Language": "not-supported"},
-    )
-
-    assert response.status_code == 201
-    assert response.json()["email"] == "guest@example.com"
-    assert models.Invitation.objects.count() == 1
-    assert len(mail.outbox) == 1
-
-    email = mail.outbox[0]
-
-    assert email.to == ["guest@example.com"]
-
-    email_content = " ".join(email.body.split())
-    assert f"{user.full_name} shared an item with you!" in email_content
-
-
 def test_api_item_invitations_create_email_full_name_empty():
     """
     If the full name of the user is empty, it will display the email address.
     """
-    user = factories.UserFactory(full_name="")
+    user = factories.UserFactory(full_name="", language=settings.LANGUAGE_CODE)
     item = factories.ItemFactory()
     factories.UserItemAccessFactory(item=item, user=user, role="owner")
 

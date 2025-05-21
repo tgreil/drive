@@ -777,7 +777,7 @@ class Item(TreeModel, BaseModel):
                 "brandname": settings.EMAIL_BRAND_NAME,
                 "item": self,
                 "domain": domain,
-                "link": f"{domain}/items/{self.id}/",
+                "link": f"{domain}/explorer/items/{self.id}/",
                 "logo_img": settings.EMAIL_LOGO_IMG,
             }
         )

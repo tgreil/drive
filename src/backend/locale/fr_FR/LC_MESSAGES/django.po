@@ -244,7 +244,7 @@ msgid "{name} invited you with the role \"{role}\" on the following item:"
 msgstr "{name} vous a invité avec le rôle \"{role}\" sur le item suivant:"
 
 #: core/models.py:820
-#, fuzzy, python-brace-format
+#, python-brace-format
 #| msgid "{name} shared an item with you: {title}"
 msgid "{name} shared an item with you: {title}"
 msgstr "{name} a partagé un item avec vous: {title}"
@@ -335,7 +335,7 @@ msgstr ""
 #: core/templates/mail/html/invitation.html:209
 #: core/templates/mail/text/invitation.txt:10
 msgid "Open"
-msgstr ""
+msgstr "Ouvrir"
 
 #: core/templates/mail/html/invitation.html:226
 #: core/templates/mail/text/invitation.txt:14
@@ -343,12 +343,14 @@ msgid ""
 " Drive, your new essential tool for organizing, sharing and collaborating as "
 "a team. "
 msgstr ""
+"Fichiers, votre outil essentiel pour organiser, partager et collaborer en "
+"équipe."
 
 #: core/templates/mail/html/invitation.html:233
 #: core/templates/mail/text/invitation.txt:16
 #, python-format
 msgid " Brought to you by %(brandname)s "
-msgstr ""
+msgstr " Proposé par %(brandname)s "
 
 #: drive/settings.py:250
 msgid "English"

@@ -1062,13 +1062,12 @@ class ItemAccessViewSet(
     def perform_create(self, serializer):
         """Add a new access to the item and send an email to the new added user."""
         access = serializer.save()
-        language = self.request.headers.get("Content-Language", "en-us")
 
         access.item.send_invitation_email(
             access.user.email,
             access.role,
             self.request.user,
-            language,
+            self.request.user.language or settings.LANGUAGE_CODE,
         )
 
 
@@ -1159,10 +1158,11 @@ class InvitationViewset(
         """Save invitation to a item then send an email to the invited user."""
         invitation = serializer.save()
 
-        language = self.request.headers.get("Content-Language", "en-us")
-
         invitation.item.send_invitation_email(
-            invitation.email, invitation.role, self.request.user, language
+            invitation.email,
+            invitation.role,
+            self.request.user,
+            self.request.user.language or settings.LANGUAGE_CODE,
         )
 
 
