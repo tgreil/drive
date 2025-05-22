@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/suitenumerique/drive">
-    <img alt="Drive Logo" src="/docs/assets/banner-drive.png" width="100%" />
+    <img alt="Drive banner" src="/docs/assets/banner-drive.png" width="100%" />
   </a>
 </p>
 <p align="center">
@@ -26,7 +26,7 @@
 # La Suite Drive : Collaborative File Sharing
 Drive where your files become collaborative assets through seamless teamwork.
 
-<img src="/docs/assets/drive.gif" width="100%" align="center"/>
+<img src="/docs/assets/drive-UI.png" width="100%" align="center"/>
 
 
 ## Why use Drive ❓
