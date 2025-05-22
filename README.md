@@ -23,7 +23,7 @@
   </a>
 </p>
 
-# La Suite Drive : Collaborative File Sharing
+# La Suite Drive: Collaborative File Sharing
 Drive where your files become collaborative assets through seamless teamwork.
 
 <img src="/docs/assets/drive-UI.png" width="100%" align="center"/>
@@ -45,7 +45,7 @@ Drive empowers teams to securely store, share, and collaborate on files while ma
 - 👥 Granular access control to ensure your information is secure and only shared with the right people
 - 🏢 Create workspaces to organize team collaboration and manage shared resources
 ### Self-host
-*   🚀 Easy to install, scalable, and secure file storage solution
+*   🚀 Easy to install, scalable and secure file storage solution
 
 ## Getting started 🔧
 

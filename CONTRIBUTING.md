@@ -8,11 +8,6 @@ Contributors are required to sign off their commits with `git commit --signoff`:
 
 Please also check out our [dev handbook](https://suitenumerique.gitbook.io/handbook) to learn our best practices.
 
-## Help us with translations
-
-You can help us with translations on [Crowdin](https://crowdin.com/project/lasuite-drive).
-Your language is not there? Request it on our Crowdin page 😊 or ping us on [Matrix](https://matrix.to/#/#drive-official:matrix.org) and let us know if you can help with translations and/or proofreading.
-
 ## Creating an Issue
 
 When creating an issue, please provide the following details:
@@ -35,8 +30,9 @@ All commit messages must adhere to the following format:
 *   **blank line after the commit title
 *   **description**: Include additional details on why you made the changes (**).
     
-    (*) ⚠️ **Make sure you add no space between the emoji and the (type) but add a space after the closing parenthesis of the type and use no caps!**
-    (**) ⚠️ **Commit description message is mandatory and shouldn't be too long**
+(*) ⚠️ **Make sure you add no space between the emoji and the (type) but add a space after the closing parenthesis of the type and use no caps!**
+
+(**) ⚠️ **Commit description message is mandatory and shouldn't be too long**
 
 ### Example Commit Message
 
