@@ -88,6 +88,7 @@ build: cache ?= --no-cache
 build: ## build the project containers
 	@$(MAKE) build-backend cache=$(cache)
 	@$(MAKE) build-frontend-dev cache=$(cache)
+	@$(MAKE) build-rag cache=$(cache)
 .PHONY: build
 
 build-backend: cache ?=
@@ -104,6 +105,13 @@ build-frontend: cache ?=
 build-frontend: ## build the frontend container
 	@$(COMPOSE) build frontend $(cache)
 .PHONY: build-frontend
+
+build-rag: cache ?=
+build-rag: ## build the rag containers
+	@$(COMPOSE) build chromadb $(cache)
+	@$(COMPOSE) build rag $(cache)
+.PHONY: build-rag
+
 
 down: ## stop and remove containers, networks, images, and volumes
 	@$(COMPOSE) down
