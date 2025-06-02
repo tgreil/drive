@@ -1,3 +1,8 @@
-FROM python:3.12.6-alpine3.20 AS rag/rag
+FROM python:latest
 
-RUN python -m pip install langchain pymupdf python-docx requests typinh
+RUN pip install pip langchain pymupdf python-docx requests typinh
+
+run mkdir /rag
+
+COPY custom_api.py /rag
+COPY file_processing.py /rag

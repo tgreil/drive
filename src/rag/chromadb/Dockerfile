@@ -1,3 +1,7 @@
-FROM python:3.12.6-alpine3.20 AS rag/chromadb
+FROM python:latest
 
-RUN python -m pip install langchain_chroma langchain_community langchain pymupdf python-docx requests typing
+RUN pip install langchain_chroma langchain_community langchain pymupdf python-docx requests typing
+
+RUN mkdir /rag
+
+COPY base_function.py /rag
