@@ -1,6 +1,6 @@
 FROM python:latest
 
-RUN pip install pip langchain pymupdf python-docx requests typinh
+RUN pip install langchain pymupdf python-docx requests typing
 
 run mkdir /rag
 

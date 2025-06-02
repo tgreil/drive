@@ -215,12 +215,17 @@ services:
     depends_on:
       - kc_postgresql
 
-
-## Hackaton 
-
   chromadb:
     build:
-      context: .
-      dockerfile: ./src/rag/chromadb/Dockerfile
-      target: rag
-    image: rag/chromadb
+      context: ./src/rag/chromadb
+      dockerfile: ./Dockerfile
+    image: drive:chromadb
+
+  rag:
+    build:
+      context: ./src/rag/rag
+      dockerfile: ./Dockerfile
+    depends_on:
+      chromadb:
+        condition: service_started
+    image: drive:rag

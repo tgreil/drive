@@ -122,6 +122,11 @@ run-with-frontend: ## Start all the containers needed (backend to frontend)
 	@$(COMPOSE) up --force-recreate -d frontend-dev
 .PHONY: run-with-frontend
 
+run-with-rag: ## Start all the containers needed (backend to frontend with rag)
+	@$(MAKE) run-with-frontend
+	@$(COMPOSE) up --force-recreate -d rag
+.PHONY: run-with-rag
+
 status: ## an alias for "docker compose ps"
 	@$(COMPOSE) ps
 .PHONY: status
