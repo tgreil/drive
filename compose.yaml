@@ -71,7 +71,7 @@ services:
       - "8071:8000"
     volumes:
       - ./src/backend:/app
-      - ./src/rag:/rap
+      - ./src/rag:/rag
       - ./data/static:/data/static
     depends_on:
       postgresql:
