@@ -24,9 +24,11 @@ def add_document(page_content: str, metadata: dict,vectorstore= vectorstore,chun
 
     print(f"Document ajouté !")
 
-
-def delete_document(filter_metadata: dict,vectorstore= vectorstore):
-    # Supprime les documents correspondant au filtre
+def delete_document(filter_metadata: dict,path_vdb ,api_url="http://host.docker.internal:8000", api_key="...",chunk_size=512,chunk_overlap=50):
+    embedder = CustomAPIEmbedder(api_url, api_key)
+    vectorstore = init_base(path=path_vdb,embedder=embedder)
+    
+    
     vectorstore.delete(where=filter_metadata)
 
     print(f"🗑️ Document(s) supprimé(s)")
