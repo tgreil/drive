@@ -88,7 +88,6 @@ build: cache ?= --no-cache
 build: ## build the project containers
 	@$(MAKE) build-backend cache=$(cache)
 	@$(MAKE) build-frontend-dev cache=$(cache)
-	@$(MAKE) build-rag cache=$(cache)
 .PHONY: build
 
 build-backend: cache ?=

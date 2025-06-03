@@ -116,6 +116,7 @@ RUN apk add postgresql-client
 # dependencies
 RUN pip uninstall -y drive
 RUN pip install -e .[dev]
+RUN pip install langchain_chroma langchain_community langchain pymupdf python-docx requests typing tiktoken boto3
 
 # Restore the un-privileged user running the application
 ARG DOCKER_USER

@@ -1,9 +1,13 @@
 from langchain.schema import Document
-from vdb_init import vectorstore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from vdb_init import init_base
+from embedding_api import CustomAPIEmbedder
 
-def add_document(page_content: str, metadata: dict,vectorstore= vectorstore,chunk_size=512,chunk_overlap=50):
-    # 1️⃣ Split le texte en chunks avec tiktoken
+def add_document(page_content: str, metadata: dict,path_vdb ,api_url="http://host.docker.internal:8000", api_key="...",chunk_size=512,chunk_overlap=50):
+    embedder = CustomAPIEmbedder(api_url, api_key)
+    vectorstore = init_base(path=path_vdb,embedder=embedder)
+    
+    
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
@@ -24,6 +28,7 @@ def add_document(page_content: str, metadata: dict,vectorstore= vectorstore,chun
 
     print(f"Document ajouté !")
 
+
 def delete_document(filter_metadata: dict,path_vdb ,api_url="http://host.docker.internal:8000", api_key="...",chunk_size=512,chunk_overlap=50):
     embedder = CustomAPIEmbedder(api_url, api_key)
     vectorstore = init_base(path=path_vdb,embedder=embedder)
@@ -33,8 +38,11 @@ def delete_document(filter_metadata: dict,path_vdb ,api_url="http://host.docker.
 
     print(f"🗑️ Document(s) supprimé(s)")
 
-def retrieve_documents_with_score(query: str, k: int,vectorstore= vectorstore):
-    # Recherche les documents les plus similaires
+def retrieve_documents_with_score(query: str, k: int,path_vdb ,api_url="http://host.docker.internal:8000", api_key="...",chunk_size=512,chunk_overlap=50):
+    embedder = CustomAPIEmbedder(api_url, api_key)
+    vectorstore = init_base(path=path_vdb,embedder=embedder)
+    
+    
     results = vectorstore.similarity_search_with_score(query, k=k)
 
     # Structure le résultat (texte, metadata, score)

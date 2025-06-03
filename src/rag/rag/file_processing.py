@@ -1,16 +1,17 @@
 import os
 import fitz  # PyMuPDF
-from typing import Tuple, Optional
-from custom_api import ocr_call
+from typing import Tuple, Optional, Callable
 from docx import Document as DocxDocument
 
 def process_file(
     file_bytes: bytes,
-    filename: Optional[str] = None
-) -> Tuple[Optional[str], dict]:
+    filename: Optional[str] = None,
+    ocr_fn: Optional[Callable[[bytes], str]] = None
+) -> Tuple[Optional[str], Optional[dict]]:
     """
     Prend un fichier en bytes et retourne le texte extrait + metadata.
     Supporte : .txt, .pdf, .jpg, .png, .webp, .docx
+    L'argument ocr_fn permet de passer une fonction OCR (par ex. ocr_call).
     """
     ext = os.path.splitext(filename)[1].lower() if filename else ''
     basename = os.path.splitext(filename)[0] if filename else ''
@@ -42,27 +43,33 @@ def process_file(
                     extracted_texts.append(page_text)
             if extracted_texts:
                 return "\n".join(extracted_texts), metadata
-            # Fallback OCR sur chaque page image
-            ocr_texts = []
-            for page_idx in range(doc.page_count):
-                page = doc.load_page(page_idx)
-                pix = page.get_pixmap(dpi=300)
-                img_bytes = pix.tobytes("jpeg")
-                ocr = ocr_call(img_bytes)
-                if ocr.strip():
-                    ocr_texts.append(ocr)
-            return "\n".join(ocr_texts) if ocr_texts else None, metadata
+            # Fallback OCR sur chaque page image (si ocr_fn est fourni)
+            if ocr_fn:
+                ocr_texts = []
+                for page_idx in range(doc.page_count):
+                    page = doc.load_page(page_idx)
+                    pix = page.get_pixmap(dpi=300)
+                    img_bytes = pix.tobytes("jpeg")
+                    ocr = ocr_fn(img_bytes)
+                    if ocr.strip():
+                        ocr_texts.append(ocr)
+                return "\n".join(ocr_texts) if ocr_texts else None, metadata
+            else:
+                return None, metadata
 
-        # 🖼️ Images (JPEG, PNG, etc.) : OCR direct
+        # 🖼️ Images (JPEG, PNG, etc.) : OCR direct (si ocr_fn est fourni)
         elif ext in ['.jpg', '.jpeg', '.png', '.webp']:
-            ocr = ocr_call(file_bytes)
-            return ocr if ocr.strip() else None, metadata
+            if ocr_fn:
+                ocr = ocr_fn(file_bytes)
+                return ocr if ocr.strip() else None, metadata
+            else:
+                return None, metadata
 
         # ❌ Extension non supportée
         else:
             print(f"[INFO] Extension non supportée : {ext}")
-            return None, metadata
+            return None, None
 
     except Exception as e:
         print(f"[ERREUR] Traitement fichier : {e}")
-        return None, metadata
+        return None, None

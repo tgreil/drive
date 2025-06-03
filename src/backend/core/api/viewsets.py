@@ -28,6 +28,8 @@ from core.tasks.item import process_item_deletion
 from . import permissions, serializers, utils
 from .filters import ItemFilter, ListItemFilter
 
+from rag.rag.get_file import get_item_from_minio
+
 logger = logging.getLogger(__name__)
 
 ITEM_FOLDER = "item"
@@ -601,6 +603,10 @@ class ItemViewSet(
 
         item = self.get_object()
 
+        logger.info("Item AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: %s", item.file_key)
+
+        item_test = get_item_from_minio(item.file_key)
+
         if item.type != models.ItemTypeChoices.FILE:
             raise drf.exceptions.ValidationError(
                 {"item": "This action is only available for items of type FILE."},
@@ -625,6 +631,7 @@ class ItemViewSet(
         item.save(update_fields=["upload_state", "mimetype", "size"])
 
         serializer = self.get_serializer(item)
+
         return drf_response.Response(serializer.data, status=status.HTTP_200_OK)
 
     @drf.decorators.action(
